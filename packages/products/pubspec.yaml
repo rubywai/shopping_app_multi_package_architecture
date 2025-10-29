@@ -1,4 +1,4 @@
-name: common
+name: products
 description: "A new Flutter package project."
 version: 0.0.1
 homepage:
@@ -10,6 +10,10 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  dio: ^5.9.0
+  get_it: ^8.2.0
+  flutter_riverpod: ^2.6.1
+
 
 dev_dependencies:
   flutter_test:

@@ -13,6 +13,7 @@ dependencies:
   dio: ^5.9.0
   get_it: ^8.2.0
   pretty_dio_logger: ^1.4.0
+  go_router: ^15.1.2
 
 dev_dependencies:
   flutter_test:
