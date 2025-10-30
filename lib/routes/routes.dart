@@ -2,6 +2,7 @@ import 'package:common/common.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:products/products.dart';
+import 'package:cart/cart.dart';
 
 final routes = GoRouter(
   initialLocation: '/',
@@ -77,9 +78,7 @@ final routes = GoRouter(
               path: '/cart',
               name: 'cart',
               builder: (context, state) {
-                return const Center(
-                  child: Text("Cart"),
-                );
+                return const CartPage();
               },
             ),
           ],

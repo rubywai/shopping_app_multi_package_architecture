@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:cart/cart.dart';
+import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/models/product_detail_model.dart';
 
-class ProductDetailContent extends StatefulWidget {
+class ProductDetailContent extends ConsumerStatefulWidget {
   final ProductDetailModel product;
 
   const ProductDetailContent({
@@ -11,18 +14,51 @@ class ProductDetailContent extends StatefulWidget {
   });
 
   @override
-  State<ProductDetailContent> createState() => _ProductDetailContentState();
+  ConsumerState<ProductDetailContent> createState() =>
+      _ProductDetailContentState();
 }
 
-class _ProductDetailContentState extends State<ProductDetailContent> {
+class _ProductDetailContentState extends ConsumerState<ProductDetailContent> {
   String? selectedSize;
   int _currentImageIndex = 0;
   final PageController _pageController = PageController();
+  final TextEditingController _quantityController =
+      TextEditingController(text: '1');
+  int _quantity = 1;
 
   @override
   void dispose() {
     _pageController.dispose();
+    _quantityController.dispose();
     super.dispose();
+  }
+
+  void _incrementQuantity() {
+    setState(() {
+      _quantity++;
+      _quantityController.text = _quantity.toString();
+    });
+  }
+
+  void _decrementQuantity() {
+    if (_quantity > 1) {
+      setState(() {
+        _quantity--;
+        _quantityController.text = _quantity.toString();
+      });
+    }
+  }
+
+  void _onQuantityChanged(String value) {
+    final newQuantity = int.tryParse(value);
+    if (newQuantity != null && newQuantity > 0) {
+      setState(() {
+        _quantity = newQuantity;
+      });
+    } else {
+      // Reset to previous value if invalid
+      _quantityController.text = _quantity.toString();
+    }
   }
 
   List<String> _getSizesFromProduct() {
@@ -573,12 +609,64 @@ class _ProductDetailContentState extends State<ProductDetailContent> {
 
                 const SizedBox(height: 24),
 
-                // Add to Cart Button
+                // Quantity Selector
+                Row(
+                  children: [
+                    const Text(
+                      'Quantity:',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    // Decrement Button
+                    IconButton(
+                      onPressed: _decrementQuantity,
+                      icon: const Icon(Icons.remove_circle_outline),
+                      iconSize: 32,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                    // Quantity Text Field
+                    SizedBox(
+                      width: 60,
+                      child: TextField(
+                        controller: _quantityController,
+                        keyboardType: TextInputType.number,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        decoration: InputDecoration(
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 8,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        onChanged: _onQuantityChanged,
+                      ),
+                    ),
+                    // Increment Button
+                    IconButton(
+                      onPressed: _incrementQuantity,
+                      icon: const Icon(Icons.add_circle_outline),
+                      iconSize: 32,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+
+                // Add to Cart Button with Cart Package Integration
                 SizedBox(
                   width: double.infinity,
                   height: 50,
-                  child: ElevatedButton(
-                    onPressed: () {
+                  child: ElevatedButton.icon(
+                    onPressed: () async {
                       final availableSizes = _getSizesFromProduct();
 
                       // Only validate size if product has size variations
@@ -592,21 +680,87 @@ class _ProductDetailContentState extends State<ProductDetailContent> {
                         return;
                       }
 
-                      // TODO: Add to cart functionality
-                      final message = selectedSize != null
-                          ? '${widget.product.name} (Size: $selectedSize) added to cart'
-                          : '${widget.product.name} added to cart';
+                      // Capture ScaffoldMessenger before async gap
+                      final messenger = ScaffoldMessenger.of(context);
 
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(message),
-                          backgroundColor: Colors.green,
-                        ),
+                      // Get the appropriate variation ID if size is selected
+                      // Get the appropriate variation ID if size is selected
+                      int? variationId;
+                      if (selectedSize != null &&
+                          widget.product.variations != null) {
+                        // Get the first variation that matches the selected size
+                        // In a real app, you'd fetch variation details from the API
+                        variationId = widget.product.variations!.isNotEmpty
+                            ? widget.product.variations!.first.toInt()
+                            : null;
+                      }
+
+                      // Create cart item
+                      final cartItem = CartItemModel(
+                        productId: widget.product.id ?? 0,
+                        productName: widget.product.name ?? 'Unknown Product',
+                        productImage: widget.product.images?.isNotEmpty == true
+                            ? widget.product.images!.first.src ?? ''
+                            : '',
+                        price:
+                            double.tryParse(widget.product.price ?? '0') ?? 0.0,
+                        quantity: _quantity,
+                        size: selectedSize,
+                        variationId: variationId,
                       );
+
+                      try {
+                        // Add to cart using the notifier so cart state updates
+                        print(
+                            '🛒 Product Detail: Adding item to cart via notifier...');
+                        await ref
+                            .read(cartStateNotifierProvider.notifier)
+                            .addToCart(cartItem);
+                        print('🛒 Product Detail: Item added successfully!');
+
+                        if (!mounted) return;
+
+                        messenger.showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              selectedSize != null
+                                  ? 'Added $_quantity x ${widget.product.name} (Size: $selectedSize) to cart'
+                                  : 'Added $_quantity x ${widget.product.name} to cart',
+                            ),
+                            backgroundColor: Colors.green,
+                            action: SnackBarAction(
+                              label: 'VIEW CART',
+                              textColor: Colors.white,
+                              onPressed: () {
+                                context.go('/cart');
+                              },
+                            ),
+                          ),
+                        );
+
+                        // Reset quantity after adding to cart
+                        setState(() {
+                          _quantity = 1;
+                          _quantityController.text = '1';
+                        });
+                      } catch (e) {
+                        if (!mounted) return;
+
+                        messenger.showSnackBar(
+                          SnackBar(
+                            content: Text('Failed to add to cart: $e'),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
                     },
-                    child: const Text(
+                    icon: const Icon(Icons.shopping_cart),
+                    label: const Text(
                       'Add to Cart',
                       style: TextStyle(fontSize: 18),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
                   ),
                 ),

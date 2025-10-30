@@ -1,7 +1,7 @@
 name: products
-description: "A new Flutter package project."
+description: "Products feature package for shopping app"
 version: 0.0.1
-homepage:
+publish_to: none
 
 environment:
   sdk: ^3.5.4
@@ -16,6 +16,8 @@ dependencies:
   go_router: ^16.3.0
   common:
     path: ../common
+  cart:
+    path: ../cart
 
 
 dev_dependencies:
@@ -28,6 +30,7 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
+  uses-material-design: false
 
   # To add assets to your package, add an assets section, like this:
   # assets:

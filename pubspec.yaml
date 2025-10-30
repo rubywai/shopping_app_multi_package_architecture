@@ -41,6 +41,8 @@ dependencies:
     path : ./packages/common
   products:
     path: ./packages/products
+  cart:
+    path: ./packages/cart
 
 dev_dependencies:
   flutter_test:
