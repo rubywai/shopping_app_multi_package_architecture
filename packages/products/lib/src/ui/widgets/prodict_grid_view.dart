@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../data/models/product_model.dart';
+import '../../data/models/product_list_model.dart';
 
 class ProductGridView extends StatelessWidget {
   const ProductGridView({
@@ -12,7 +12,7 @@ class ProductGridView extends StatelessWidget {
     this.hasMore = true,
   });
 
-  final List<ProductModel> products;
+  final List<ProductListModel> products;
   final ScrollController scrollController;
   final bool isLoadingMore;
   final bool hasMore;
@@ -64,7 +64,7 @@ class ProductGridView extends StatelessWidget {
     );
   }
 
-  Widget _buildProductCard(BuildContext context, ProductModel product) {
+  Widget _buildProductCard(BuildContext context, ProductListModel product) {
     final imageUrl =
         product.images?.isNotEmpty == true ? product.images!.first.src : null;
 

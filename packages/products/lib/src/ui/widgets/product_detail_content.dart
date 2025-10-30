@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-import '../../data/models/product_model.dart';
+import '../../data/models/product_detail_model.dart';
 
 class ProductDetailContent extends StatefulWidget {
-  final ProductModel product;
+  final ProductDetailModel product;
 
   const ProductDetailContent({
     super.key,
@@ -16,6 +16,14 @@ class ProductDetailContent extends StatefulWidget {
 
 class _ProductDetailContentState extends State<ProductDetailContent> {
   String? selectedSize;
+  int _currentImageIndex = 0;
+  final PageController _pageController = PageController();
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
 
   List<String> _getSizesFromProduct() {
     // Find the Size attribute in the product attributes
@@ -73,38 +81,97 @@ class _ProductDetailContentState extends State<ProductDetailContent> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Product Images
+          // Product Images Carousel
           if (widget.product.images?.isNotEmpty == true)
-            SizedBox(
-              height: 400,
-              child: PageView.builder(
-                itemCount: widget.product.images!.length,
-                itemBuilder: (context, index) {
-                  final image = widget.product.images![index];
-                  return Image.network(
-                    image.src ?? '',
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) => const Center(
-                      child: Icon(
-                        Icons.image_not_supported,
-                        size: 100,
-                        color: Colors.grey,
-                      ),
-                    ),
-                    loadingBuilder: (context, child, loadingProgress) {
-                      if (loadingProgress == null) return child;
-                      return Center(
-                        child: CircularProgressIndicator(
-                          value: loadingProgress.expectedTotalBytes != null
-                              ? loadingProgress.cumulativeBytesLoaded /
-                                  loadingProgress.expectedTotalBytes!
-                              : null,
+            Stack(
+              children: [
+                SizedBox(
+                  height: 400,
+                  child: PageView.builder(
+                    controller: _pageController,
+                    itemCount: widget.product.images!.length,
+                    onPageChanged: (index) {
+                      setState(() {
+                        _currentImageIndex = index;
+                      });
+                    },
+                    itemBuilder: (context, index) {
+                      final image = widget.product.images![index];
+                      return Image.network(
+                        image.src ?? '',
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) =>
+                            const Center(
+                          child: Icon(
+                            Icons.image_not_supported,
+                            size: 100,
+                            color: Colors.grey,
+                          ),
                         ),
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return Center(
+                            child: CircularProgressIndicator(
+                              value: loadingProgress.expectedTotalBytes != null
+                                  ? loadingProgress.cumulativeBytesLoaded /
+                                      loadingProgress.expectedTotalBytes!
+                                  : null,
+                            ),
+                          );
+                        },
                       );
                     },
-                  );
-                },
-              ),
+                  ),
+                ),
+                // Image Counter
+                if (widget.product.images!.length > 1)
+                  Positioned(
+                    top: 16,
+                    right: 16,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.black54,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        '${_currentImageIndex + 1}/${widget.product.images!.length}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                // Page Indicators (Dots)
+                if (widget.product.images!.length > 1)
+                  Positioned(
+                    bottom: 16,
+                    left: 0,
+                    right: 0,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: List.generate(
+                        widget.product.images!.length,
+                        (index) => Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 4),
+                          width: _currentImageIndex == index ? 24 : 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            color: _currentImageIndex == index
+                                ? Colors.white
+                                : Colors.white54,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
             ),
 
           Padding(

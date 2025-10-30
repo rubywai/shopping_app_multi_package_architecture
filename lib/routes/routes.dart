@@ -29,7 +29,16 @@ final routes = GoRouter(
                   name: 'product-detail',
                   builder: (context, state) {
                     final productId = int.parse(state.pathParameters['id']!);
-                    return ProductDetailPage(productId: productId);
+                    return ProductDetailPage(
+                      productId: productId,
+                    );
+                  },
+                ),
+                GoRoute(
+                  path: 'search',
+                  name: 'search',
+                  builder: (context, state) {
+                    return const ProductSearchPage();
                   },
                 ),
               ],
@@ -42,10 +51,23 @@ final routes = GoRouter(
               path: '/category',
               name: 'category',
               builder: (context, state) {
-                return const Center(
-                  child: Text("Category"),
-                );
+                return const CategoryPage();
               },
+              routes: [
+                GoRoute(
+                  path: ':id',
+                  name: 'category-products',
+                  builder: (context, state) {
+                    final categoryId = int.parse(state.pathParameters['id']!);
+                    final categoryName =
+                        state.uri.queryParameters['name'] ?? 'Category';
+                    return CategoryProductsPage(
+                      categoryId: categoryId,
+                      categoryName: categoryName,
+                    );
+                  },
+                ),
+              ],
             ),
           ],
         ),

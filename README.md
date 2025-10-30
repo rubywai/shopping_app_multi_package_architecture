@@ -1,389 +1,500 @@
 # Shopping App - Multi-Package Architecture
 
-A modern Flutter e-commerce application built with **feature-based multi-package architecture** and powered by **WooCommerce REST APIs**.
-
----
+A Flutter e-commerce application built with multi-package architecture using WooCommerce REST API.
 
 ## Table of Contents
 
 - [Overview](#overview)
+- [Features](#features)
 - [Architecture](#architecture)
 - [Project Structure](#project-structure)
-- [Features](#features)
+- [Packages](#packages)
 - [Getting Started](#getting-started)
-- [Package Details](#package-details)
-- [API Integration](#api-integration)
-- [Development Workflow](#development-workflow)
-- [Best Practices](#best-practices)
-- [Contributing](#contributing)
+- [API Documentation](#api-documentation)
+- [State Management](#state-management)
+- [Dependencies](#dependencies)
 
 ---
 
 ## Overview
 
-This shopping app demonstrates a **scalable, maintainable, and testable** Flutter architecture using **multi-package organization**. Each feature is isolated into its own package, promoting:
+This is a modern Flutter shopping application that demonstrates clean architecture principles with a multi-package approach. The app fetches product data from WooCommerce REST API and provides a smooth shopping experience with product browsing, search, filtering by categories, and detailed product views.
 
-- **Separation of Concerns** – Each package has a single responsibility
-- **Reusability** – Shared code in `common` package
-- **Testability** – Unit test each package independently
-- **Team Scalability** – Multiple developers can work on different features without conflicts
-- **Build Performance** – Flutter only rebuilds changed packages
-
----
-
-## Architecture
-
-### Multi-Package Feature-Based Architecture
-
-```
-shopping_app_multi_package_based_architecture
-├── lib/                          # Main app entry point
-│   └── main.dart
-├── packages/                     # Feature packages
-│   ├── common/                   # Shared utilities, models, services
-│   │   ├── lib/
-│   │   │   ├── common.dart
-│   │   │   └── src/
-│   │   │       ├── config/
-│   │   │       ├── models/
-│   │   │       ├── services/
-│   │   │       ├── utils/
-│   │   │       └── widgets/
-│   │   └── pubspec.yaml
-│   │
-│   ├── products/                 # Product listing & details feature
-│   │   ├── lib/
-│   │   │   ├── products.dart
-│   │   │   └── src/
-│   │   │       ├── data/
-│   │   │       │   ├── models/
-│   │   │       │   ├── repositories/
-│   │   │       │   └── services/
-│   │   │       ├── domain/
-│   │   │       │   ├── entities/
-│   │   │       │   └── use_cases/
-│   │   │       └── presentation/
-│   │   │           ├── pages/
-│   │   │           ├── widgets/
-│   │   │           └── providers/
-│   │   └── pubspec.yaml
-│   │
-│   ├── cart/                     # Shopping cart feature (planned)
-│   ├── auth/                     # Authentication feature (planned)
-│   └── checkout/                 # Checkout & payment feature (planned)
-│
-├── pubspec.yaml                  # Root app dependencies
-└── README.md
-```
-
-### Architecture Layers (per feature package)
-
-```
-┌─────────────────────────────────────────┐
-│         Presentation Layer              │
-│  (UI, Pages, Widgets, State Management) │
-└──────────────┬──────────────────────────┘
-               │
-┌──────────────▼──────────────────────────┐
-│          Domain Layer                   │
-│     (Entities, Use Cases, Interfaces)   │
-└──────────────┬──────────────────────────┘
-               │
-┌──────────────▼──────────────────────────┐
-│           Data Layer                    │
-│ (Models, Repositories, API Services)    │
-└─────────────────────────────────────────┘
-```
-
----
-
-## Project Structure
-
-### Root App (`lib/main.dart`)
-- Composes all feature packages
-- Handles routing and app-level configuration
-- Minimal logic, mostly orchestration
-
-### Common Package (`packages/common`)
-Shared resources used across all features:
-- **Config**: API configuration, environment variables
-- **Models**: Shared data models
-- **Services**: HTTP client, logging, analytics
-- **Utils**: Helper functions, extensions, constants
-- **Widgets**: Reusable UI components
-
-### Feature Packages (`packages/products`, `packages/cart`, etc.)
-Each feature package follows **Clean Architecture**:
-- **Data Layer**: API services, repositories, DTOs
-- **Domain Layer**: Business entities, use cases
-- **Presentation Layer**: UI screens, widgets, state management
+**Tech Stack:**
+- Flutter
+- Riverpod (State Management)
+- GoRouter (Navigation)
+- Dio (HTTP Client)
+- GetIt (Dependency Injection)
+- WooCommerce REST API
 
 ---
 
 ## Features
 
-### Current Features
-- **Product Listing** – Browse products from WooCommerce store in a responsive grid layout
-- **Infinite Scroll Pagination** – Automatically loads more products as you scroll (20 products per page)
-- **Product Details** – View detailed product information with image gallery
-- **Image Gallery** – Swipeable product images with PageView
-- **Loading States** – Proper loading indicators and error handling
-- **Tap Navigation** – Tap any product card to view full details
+### Product Management
+- ✅ Product list with grid view
+- ✅ Product detail with image carousel
+- ✅ Product search with real-time filtering
+- ✅ Category-based filtering
+- ✅ Pagination support
 
-### Planned Features
-- **Product Search** – Search and filter products
-- **Shopping Cart** – Add/remove items, update quantities
-- **Authentication** – User login/registration
-- **Checkout** – Order placement and payment
-- **Order History** – View past orders
-- **Reviews & Ratings** – Product reviews
-- **User Profile** – Manage account settings
+### UI/UX
+- ✅ Image carousel with indicators
+- ✅ Size selection for variable products
+- ✅ Loading states and error handling
+- ✅ Bottom navigation
+- ✅ Responsive design
+
+### Performance
+- ✅ Optimized API calls with field filtering
+- ✅ Image caching
+- ✅ Debounced search
+- ✅ Lazy loading with pagination
+
+---
+
+## Architecture
+
+This project follows a **feature-based multi-package architecture** to achieve modularity, reusability, and separation of concerns.
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                         Main App                            │
+│                    (Shopping App Root)                      │
+└──────────────────────┬──────────────────────────────────────┘
+                       │
+           ┌───────────┴───────────┐
+           │                       │
+    ┌──────▼──────┐         ┌─────▼─────┐
+    │   Common    │         │  Products │
+    │   Package   │         │  Package  │
+    └─────────────┘         └───────────┘
+           │                       │
+    ┌──────▼──────────────┬────────▼─────────────┐
+    │   - Widgets         │   - UI (Pages)       │
+    │   - Constants       │   - Providers        │
+    │   - Dependencies    │   - Models           │
+    │   - Utils           │   - Services         │
+    └─────────────────────┴──────────────────────┘
+```
+
+### Architecture Layers
+
+#### 1. **Presentation Layer**
+- UI components (Pages, Widgets)
+- State management (Riverpod Notifiers)
+- Navigation (GoRouter)
+
+#### 2. **Domain Layer** (Implicit)
+- Business logic in state notifiers
+- Data models
+
+#### 3. **Data Layer**
+- API services (Dio)
+- Models (JSON serialization)
+- Dependency injection (GetIt)
+
+### Package Organization
+
+**Common Package** (`packages/common/`)
+- Shared widgets (ErrorRetryWidget, AppScaffold)
+- Constants (URL, App Config)
+- Dependency injection setup
+
+**Products Package** (`packages/products/`)
+- Product listing and detail pages
+- Search functionality
+- Category browsing
+- Product state management
+
+---
+
+## Project Structure
+
+```
+shopping_app_multi_package_based_architecture/
+├── lib/
+│   ├── main.dart                    # App entry point
+│   └── routes/
+│       └── routes.dart              # GoRouter configuration
+├── packages/
+│   ├── common/                      # Shared utilities
+│   │   ├── lib/
+│   │   │   ├── src/
+│   │   │   │   ├── const/          # Constants
+│   │   │   │   ├── dependency/     # DI setup
+│   │   │   │   └── widgets/        # Shared widgets
+│   │   │   └── common.dart         # Package exports
+│   │   └── pubspec.yaml
+│   └── products/                    # Products feature
+│       ├── lib/
+│       │   ├── src/
+│       │   │   ├── data/
+│       │   │   │   ├── models/     # Data models
+│       │   │   │   └── services/   # API services
+│       │   │   ├── providers/      # State management
+│       │   │   └── ui/
+│       │   │       ├── pages/      # Screens
+│       │   │       └── widgets/    # UI components
+│       │   └── products.dart       # Package exports
+│       └── pubspec.yaml
+└── pubspec.yaml                     # Root dependencies
+```
+
+---
+
+## Packages
+
+### Common Package
+Provides shared functionality across features.
+
+**Exports:**
+- `UrlConst` - API base URL configuration
+- `ErrorRetryWidget` - Reusable error display with retry
+- `AppScaffold` - Bottom navigation scaffold
+- `setUpCommonDependency()` - Dio and GetIt setup
+
+### Products Package
+Handles all product-related features.
+
+**Pages:**
+- `ProductListPage` - Grid view of products
+- `ProductDetailPage` - Detailed product information
+- `ProductSearchPage` - Search with real-time results
+- `CategoryPage` - Category listing
+- `CategoryProductsPage` - Products filtered by category
+
+**Models:**
+- `ProductListModel` - Lightweight model for listings
+- `ProductDetailModel` - Complete model for details
+- `CategoryModel` - Category information
+
+**Services:**
+- `ProductService` - Product API calls
+- `CategoryService` - Category API calls
 
 ---
 
 ## Getting Started
 
 ### Prerequisites
-
-- **Flutter SDK**: `>=3.5.4`
-- **Dart SDK**: `^3.5.4`
-- **IDE**: Android Studio, VS Code, or IntelliJ IDEA
-- **WooCommerce Store**: API credentials (Consumer Key & Secret)
+- Flutter SDK: ^3.0.0
+- Dart SDK: ^3.0.0
 
 ### Installation
 
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd shopping_app_multi_package_based_architecture
-   ```
+1. Clone the repository
+```bash
+git clone <repository-url>
+cd shopping_app_multi_package_based_architecture
+```
 
-2. **Get dependencies for all packages**
-   ```bash
-   # Get dependencies for common package
-   cd packages/common
-   flutter pub get
-   cd ../..
+2. Get dependencies
+```bash
+flutter pub get
+cd packages/common && flutter pub get
+cd ../products && flutter pub get
+cd ../..
+```
 
-   # Get dependencies for products package
-   cd packages/products
-   flutter pub get
-   cd ../..
-
-   # Get dependencies for root app
-   flutter pub get
-   ```
-
-3. **Configure API base URL**
-   
-   Update the base URL in your dependency injection setup (typically in `lib/main.dart` or a setup file):
-   - Set base URL to: `https://shopapi.rubylearner.com/api.php`
-   - Configure Dio with proper timeouts (10 seconds recommended)
-   - Add PrettyDioLogger interceptor for debugging
-   - Register Dio instance with GetIt using `instanceName: 'product'`
-
-4. **Initialize dependencies in main.dart**
-   - Call `WidgetsFlutterBinding.ensureInitialized()`
-   - Await `setUpCommonDependency()` before running the app
-   - Then run the app with `runApp(const MyApp())`
-
-5. **Run the app**
-   ```bash
-   flutter run
-   ```
+3. Run the app
+```bash
+flutter run
+```
 
 ---
 
-## Package Details
+## API Documentation
 
-### `common` Package
-
-**Dependencies:**
-- `dio` – HTTP client for API calls
-- `get_it` – Service locator for dependency injection
-- `pretty_dio_logger` – Beautiful HTTP request/response logs
-
-**Key Components:**
-- `ApiClient` – Configured Dio instance with interceptors
-- `ApiConfig` – API base URL and credentials
-- `ServiceLocator` – Dependency injection setup
-- Common models and utilities
-
-**Usage in other packages:**
-- Add `common` package as a dependency in `pubspec.yaml`
-- Use path reference: `path: ../common`
-
-### `products` Package
-
-**Features:**
-- **Product listing** with infinite scroll pagination (20 items per page)
-- **Product grid view** with 2-column responsive layout
-- **Single product detail** page with image gallery and full information
-- **State management** using Riverpod (NotifierProvider and FamilyNotifier)
-- **Loading states** for both list and detail views
-- **Error handling** with retry functionality
-
-**Clean Architecture Layers:**
-- **Data**: `ProductService` (getProducts, getSingleProduct), `ProductModel`
-- **Domain**: Business logic for fetching and displaying products
-- **Presentation**: 
-  - `ProductListPage` – Grid view with pagination
-  - `ProductDetailPage` – Single product with image gallery
-  - `ProductStateNotifier` – Manages product list state
-  - `ProductDetailNotifier` – Manages single product state
-
----
-
-## API Integration
-
-This app uses **WooCommerce REST API v3** via a **PHP proxy** for security:
-- **API Documentation**: [https://shopapi.rubylearner.com/api-documentations/](https://shopapi.rubylearner.com/api-documentations/)
-- **Proxy URL**: `https://shopapi.rubylearner.com/api.php`
-- **Base WooCommerce API**: `https://shopapi.rubylearner.com/wp-json/wc/v3/`
-
-### PHP Proxy Architecture
-
-The app uses a PHP proxy (`api.php`) to:
-- **Hide WooCommerce credentials** from the client app
-- **Control access** to specific endpoints using regex patterns
-- **Forward requests** to the WooCommerce API with authentication
-- **Return responses** directly to the Flutter app
-
-### Main Endpoints Used
-
-| Flutter Request | Proxied To | Description |
-|----------------|------------|-------------|
-| `?endpoint=products&page=1&per_page=20` | `/wp-json/wc/v3/products` | Get paginated products |
-| `?endpoint=products/799` | `/wp-json/wc/v3/products/799` | Get single product by ID |
-| `?endpoint=products/categories` | `/wp-json/wc/v3/products/categories` | Get product categories |
-| `?endpoint=orders` | `/wp-json/wc/v3/orders` | Get/Create orders |
-
-### Allowed Endpoint Patterns (PHP Proxy)
-
-The proxy accepts these patterns:
-- `products` – All products
-- `products/{id}` – Single product (e.g., `products/799`)
-- `products/categories` – Product categories
-- `products/categories/{id}` – Single category
-- `orders` – Orders list
-- `orders/{id}` – Single order
-- `customers` – Customers list
-- `customers/{id}` – Single customer
+### Base URL
+```
+https://shopapi.rubylearner.com/api.php
+```
 
 ### Authentication
-- **Type**: HTTP Basic Authentication (handled by PHP proxy)
-- **Client**: No credentials needed in Flutter app
-- **Proxy**: Uses consumer key/secret to authenticate with WooCommerce
+The API uses a PHP proxy that handles WooCommerce authentication internally.
 
 ---
 
-## Development Workflow
+### 1. Get Products
 
-### Adding a New Feature Package
+**Endpoint:** `GET /api.php?endpoint=products`
 
-1. **Create the package**
-   ```bash
-   flutter create --template=package --project-name feature_name packages/feature_name
-   ```
+**Query Parameters:**
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| page | int | Page number (default: 1) |
+| per_page | int | Items per page (default: 20) |
+| search | string | Search query (optional) |
+| category | int | Category ID filter (optional) |
+| _fields | string | Comma-separated field list |
 
-2. **Add dependency to common**
-   - Edit `packages/feature_name/pubspec.yaml`
-   - Add `common` as a path dependency: `path: ../common`
-
-3. **Structure the package**
-   - Create `feature_name.dart` as the public API
-   - Organize code in `src/` folder with `data/`, `domain/`, and `presentation/` layers
-
-4. **Add to main app**
-   - Edit root `pubspec.yaml`
-   - Add feature package as a path dependency: `path: packages/feature_name`
-
-### Running Tests
-
-```bash
-# Test a specific package
-cd packages/common
-flutter test
-
-# Test all packages (manual approach)
-cd packages/common && flutter test && cd ../..
-cd packages/products && flutter test && cd ../..
+**Example Request:**
+```
+GET /api.php?endpoint=products&page=1&per_page=20&_fields=id,name,slug,price,regular_price,sale_price,on_sale,stock_status,images,categories
 ```
 
-### Code Analysis
-
-```bash
-# Analyze a specific package
-cd packages/common
-flutter analyze
-
-# Analyze root app
-flutter analyze
+**Response:**
+```json
+[
+  {
+    "id": 799,
+    "name": "Dat Divi Engine Life Crop-top (3-Tone)",
+    "slug": "dat-divi-engine-life-crop-top-3-tone",
+    "price": "12.99",
+    "regular_price": "",
+    "sale_price": "",
+    "on_sale": false,
+    "stock_status": "instock",
+    "images": [
+      {
+        "id": 218,
+        "src": "https://shopapi.rubylearner.com/wp-content/uploads/2025/10/Dat-Divi_Life.jpg",
+        "thumbnail": "https://shopapi.rubylearner.com/wp-content/uploads/2025/10/Dat-Divi_Life-300x300.jpg"
+      }
+    ],
+    "categories": [
+      {
+        "id": 41,
+        "name": "Shirts",
+        "slug": "shirts-women"
+      }
+    ]
+  }
+]
 ```
 
 ---
 
-## Best Practices
+### 2. Get Single Product
 
-### Package Organization
-- Keep packages **focused and small**
-- Use `common` for **truly shared** code only
-- Features should be **independent** (minimal cross-feature dependencies)
-- Export only **public APIs** in the main library file
+**Endpoint:** `GET /api.php?endpoint=products/{id}`
 
-### Dependency Management
-- Use `path` dependencies for local packages during development
-- Pin versions in `common` package
-- Run `flutter pub get` after adding dependencies
+**Query Parameters:**
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| _fields | string | Comma-separated field list |
 
-### Clean Architecture
-- **Data layer** knows about domain layer
-- **Domain layer** is independent (pure Dart)
-- **Presentation layer** depends on domain layer
-- Use **dependency injection** for repositories and services
+**Example Request:**
+```
+GET /api.php?endpoint=products/799&_fields=id,name,slug,price,regular_price,sale_price,on_sale,stock_status,description,short_description,images,categories,attributes,default_attributes,variations,average_rating,rating_count,reviews_allowed,sku,weight,dimensions,type,total_sales,tags,shipping_required,shipping_class
+```
 
-### Testing
-- Write **unit tests** for use cases and repositories
-- Write **widget tests** for UI components
-- Mock external dependencies (API, database)
-- Aim for **>80% code coverage**
+**Response:**
+```json
+{
+  "id": 799,
+  "name": "Dat Divi Engine Life Crop-top (3-Tone)",
+  "slug": "dat-divi-engine-life-crop-top-3-tone",
+  "price": "12.99",
+  "regular_price": "",
+  "sale_price": "",
+  "on_sale": false,
+  "stock_status": "instock",
+  "description": "",
+  "short_description": "<p>This comfortable cotton crop-top features the Divi Engine logo on the front expressing how easy &#8220;data Divi Engine life&#8221; is. It is the perfect tee for any occasion.</p>\n",
+  "images": [
+    {
+      "id": 218,
+      "src": "https://shopapi.rubylearner.com/wp-content/uploads/2025/10/Dat-Divi_Life.jpg",
+      "thumbnail": "https://shopapi.rubylearner.com/wp-content/uploads/2025/10/Dat-Divi_Life-300x300.jpg",
+      "name": "Dat-Divi_Life.jpg",
+      "alt": ""
+    }
+  ],
+  "categories": [
+    {
+      "id": 41,
+      "name": "Shirts",
+      "slug": "shirts-women"
+    },
+    {
+      "id": 39,
+      "name": "Women",
+      "slug": "women"
+    }
+  ],
+  "attributes": [
+    {
+      "id": 1,
+      "name": "Brand",
+      "slug": "pa_brand",
+      "position": 0,
+      "visible": true,
+      "variation": false,
+      "options": ["Divi Engine"]
+    },
+    {
+      "id": 3,
+      "name": "Size",
+      "slug": "pa_size",
+      "position": 1,
+      "visible": true,
+      "variation": true,
+      "options": ["Large", "Medium", "Small"]
+    }
+  ],
+  "default_attributes": [
+    {
+      "id": 3,
+      "name": "Size",
+      "option": "large"
+    }
+  ],
+  "variations": [800, 801, 802],
+  "average_rating": "0.00",
+  "rating_count": 0,
+  "reviews_allowed": true,
+  "sku": "",
+  "weight": "",
+  "dimensions": {
+    "length": "",
+    "width": "",
+    "height": ""
+  },
+  "type": "variable",
+  "total_sales": 0,
+  "tags": [],
+  "shipping_required": true,
+  "shipping_class": ""
+}
+```
 
 ---
 
-## Contributing
+### 3. Search Products
 
-Contributions are welcome! Please follow these guidelines:
+**Endpoint:** `GET /api.php?endpoint=products&search={query}`
 
-1. **Fork** the repository
-2. **Create a feature branch**: `git checkout -b feature/amazing-feature`
-3. **Make your changes** and add tests
-4. **Ensure tests pass**: `flutter test`
-5. **Commit your changes**: `git commit -m 'Add amazing feature'`
-6. **Push to branch**: `git push origin feature/amazing-feature`
-7. **Open a Pull Request**
+**Example Request:**
+```
+GET /api.php?endpoint=products&search=shirt&page=1&per_page=20
+```
+
+**Response:** Same as Get Products
+
+---
+
+### 4. Get Categories
+
+**Endpoint:** `GET /api.php?endpoint=products/categories`
+
+**Query Parameters:**
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| page | int | Page number (default: 1) |
+| per_page | int | Items per page (default: 100) |
+| parent | int | Parent category ID (0 for top-level) |
+| hide_empty | bool | Hide empty categories |
+| _fields | string | Comma-separated field list |
+
+**Example Request:**
+```
+GET /api.php?endpoint=products/categories&page=1&per_page=100&parent=0&hide_empty=true&_fields=id,name,slug,parent,description,display,image,menu_order,count
+```
+
+**Response:**
+```json
+[
+  {
+    "id": 41,
+    "name": "Shirts",
+    "slug": "shirts-women",
+    "parent": 39,
+    "description": "",
+    "display": "default",
+    "image": {
+      "id": 215,
+      "src": "https://shopapi.rubylearner.com/wp-content/uploads/2025/10/category-image.jpg",
+      "name": "category-image.jpg",
+      "alt": ""
+    },
+    "menu_order": 0,
+    "count": 5
+  }
+]
+```
+
+---
+
+### 5. Get Products by Category
+
+**Endpoint:** `GET /api.php?endpoint=products&category={id}`
+
+**Example Request:**
+```
+GET /api.php?endpoint=products&category=41&page=1&per_page=20
+```
+
+**Response:** Same as Get Products
+
+---
+
+## State Management
+
+The app uses **Riverpod** for state management with the following notifiers:
+
+### ProductStateNotifier
+Manages product listing state with pagination.
+
+**Methods:**
+- `fetchProducts()` - Load initial products
+- `loadMore()` - Load next page
+- `searchProducts(String query)` - Search products
+- `fetchProductsByCategory(int categoryId)` - Filter by category
+
+### ProductDetailNotifier
+Manages single product detail state.
+
+**Methods:**
+- `fetchProductDetail(int productId)` - Load product details
+
+### CategoryStateNotifier
+Manages category listing state.
+
+**Methods:**
+- `fetchCategories()` - Load all categories
+
+---
+
+## Dependencies
+
+### Main Dependencies
+```yaml
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_riverpod: ^2.6.1
+  go_router: ^14.6.2
+  dio: ^5.7.0
+  get_it: ^8.0.2
+  pretty_dio_logger: ^1.4.0
+```
+
+### Dev Dependencies
+```yaml
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+```
 
 ---
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License.
+
+---
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
 
 ---
 
 ## Contact
 
-For questions or support, please contact:
-- **Email**: your.email@example.com
-- **GitHub**: [@yourusername](https://github.com/yourusername)
+For questions or support, please open an issue in the repository.
 
----
-
-## Acknowledgments
-
-- [WooCommerce REST API](https://woocommerce.github.io/woocommerce-rest-api-docs/)
-- [Flutter Documentation](https://docs.flutter.dev/)
-- [Clean Architecture by Uncle Bob](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
-
----
-
-**Built with Flutter and WooCommerce**

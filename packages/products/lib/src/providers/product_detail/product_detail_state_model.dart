@@ -1,4 +1,4 @@
-import '../data/models/product_model.dart';
+import '../../../products.dart';
 
 sealed class ProductDetailStateModel {}
 
@@ -10,6 +10,6 @@ class ProductDetailFailed extends ProductDetailStateModel {
 }
 
 class ProductDetailSuccess extends ProductDetailStateModel {
-  final ProductModel product;
+  final ProductDetailModel product;
   ProductDetailSuccess({required this.product});
 }

@@ -1,15 +1,16 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../data/services/product_service.dart';
+import '../../data/services/product_service.dart';
 import 'product_detail_state_model.dart';
 
-class ProductDetailNotifier
-    extends AutoDisposeFamilyNotifier<ProductDetailStateModel, int> {
+typedef ProductDetailProvider
+    = NotifierProvider<ProductDetailNotifier, ProductDetailStateModel>;
+
+class ProductDetailNotifier extends Notifier<ProductDetailStateModel> {
   final ProductService _productService = ProductService();
 
   @override
-  ProductDetailStateModel build(int productId) {
-    fetchProductDetail(productId);
+  ProductDetailStateModel build() {
     return ProductDetailLoading();
   }
 
@@ -23,9 +24,3 @@ class ProductDetailNotifier
     }
   }
 }
-
-// Global provider with family parameter for product ID
-final productDetailProvider = AutoDisposeNotifierProviderFamily<
-    ProductDetailNotifier, ProductDetailStateModel, int>(
-  ProductDetailNotifier.new,
-);

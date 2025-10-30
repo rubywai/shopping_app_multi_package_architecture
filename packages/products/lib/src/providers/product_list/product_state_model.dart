@@ -1,4 +1,4 @@
-import '../data/models/product_model.dart';
+import '../../data/models/product_list_model.dart';
 
 sealed class ProductStateModel {}
 
@@ -10,7 +10,7 @@ class ProductStateFailed extends ProductStateModel {
 }
 
 class ProductStateSuccess extends ProductStateModel {
-  final List<ProductModel> products;
+  final List<ProductListModel> products;
   final int currentPage;
   final bool hasMore;
   final bool isLoadingMore;
@@ -23,7 +23,7 @@ class ProductStateSuccess extends ProductStateModel {
   });
 
   ProductStateSuccess copyWith({
-    List<ProductModel>? products,
+    List<ProductListModel>? products,
     int? currentPage,
     bool? hasMore,
     bool? isLoadingMore,

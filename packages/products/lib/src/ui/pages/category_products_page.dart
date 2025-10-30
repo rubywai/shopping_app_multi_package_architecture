@@ -1,21 +1,27 @@
-import 'package:common/common.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
+import 'package:common/common.dart';
 
 import '../../providers/product_list/product_state_model.dart';
 import '../../providers/product_list/product_state_notifier.dart';
 import '../widgets/prodict_grid_view.dart';
 
-class ProductListPage extends ConsumerStatefulWidget {
-  const ProductListPage({super.key});
+class CategoryProductsPage extends ConsumerStatefulWidget {
+  final int categoryId;
+  final String categoryName;
+
+  const CategoryProductsPage({
+    super.key,
+    required this.categoryId,
+    required this.categoryName,
+  });
 
   @override
-  ConsumerState createState() => _ProductListPageState();
+  ConsumerState createState() => _CategoryProductsPageState();
 }
 
-class _ProductListPageState extends ConsumerState<ProductListPage> {
-  final ProductStateProvider _productStateNotifier = ProductStateProvider(() {
+class _CategoryProductsPageState extends ConsumerState<CategoryProductsPage> {
+  final ProductStateProvider _productStateProvider = ProductStateProvider(() {
     return ProductStateNotifier();
   });
   final ScrollController _scrollController = ScrollController();
@@ -36,33 +42,30 @@ class _ProductListPageState extends ConsumerState<ProductListPage> {
 
   void _loadProducts() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(_productStateNotifier.notifier).fetchProducts();
+      ref
+          .read(_productStateProvider.notifier)
+          .fetchProductsByCategory(widget.categoryId);
     });
   }
 
   void _onScroll() {
     if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent - 200) {
-      ref.read(_productStateNotifier.notifier).loadMore();
+      ref
+          .read(_productStateProvider.notifier)
+          .loadMoreCategory(widget.categoryId);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    ProductStateModel productStateModel = ref.watch(_productStateNotifier);
+    final productState = ref.watch(_productStateProvider);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Product List"),
-        actions: [
-          IconButton(
-            onPressed: () {
-              context.go('/search');
-            },
-            icon: const Icon(Icons.search),
-          )
-        ],
+        title: Text(widget.categoryName),
       ),
-      body: switch (productStateModel) {
+      body: switch (productState) {
         ProductStateLoading() => const Center(
             child: CircularProgressIndicator(),
           ),
@@ -75,12 +78,16 @@ class _ProductListPageState extends ConsumerState<ProductListPage> {
           isLoadingMore: final isLoadingMore,
           hasMore: final hasMore
         ) =>
-          ProductGridView(
-            products: products,
-            scrollController: _scrollController,
-            isLoadingMore: isLoadingMore,
-            hasMore: hasMore,
-          )
+          products.isEmpty
+              ? const Center(
+                  child: Text("No products in this category"),
+                )
+              : ProductGridView(
+                  products: products,
+                  scrollController: _scrollController,
+                  isLoadingMore: isLoadingMore,
+                  hasMore: hasMore,
+                ),
       },
     );
   }

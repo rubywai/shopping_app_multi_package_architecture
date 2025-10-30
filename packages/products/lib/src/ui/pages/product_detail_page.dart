@@ -2,21 +2,44 @@ import 'package:common/common.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../providers/product_detail_notifier.dart';
-import '../../providers/product_detail_state_model.dart';
+import '../../providers/product_detail/product_detail_notifier.dart';
+import '../../providers/product_detail/product_detail_state_model.dart';
 import '../widgets/product_detail_content.dart';
 
-class ProductDetailPage extends ConsumerWidget {
-  final int productId;
-
+class ProductDetailPage extends ConsumerStatefulWidget {
   const ProductDetailPage({
     super.key,
     required this.productId,
   });
+  final int productId;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final productDetailState = ref.watch(productDetailProvider(productId));
+  ConsumerState<ProductDetailPage> createState() => _ProductDetailPageState();
+}
+
+class _ProductDetailPageState extends ConsumerState<ProductDetailPage> {
+  final ProductDetailProvider _productDetailProvider =
+      ProductDetailProvider(() {
+    return ProductDetailNotifier();
+  });
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadProductDetail();
+    });
+  }
+
+  void _loadProductDetail() {
+    ref
+        .read(_productDetailProvider.notifier)
+        .fetchProductDetail(widget.productId);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final productDetailState = ref.watch(_productDetailProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -29,7 +52,7 @@ class ProductDetailPage extends ConsumerWidget {
         ProductDetailFailed(:final message) => ErrorRetryWidget(
             message: message,
             onRetry: () {
-              ref.invalidate(productDetailProvider(productId));
+              _loadProductDetail();
             },
           ),
         ProductDetailSuccess(:final product) => ProductDetailContent(
