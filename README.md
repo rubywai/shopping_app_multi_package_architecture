@@ -123,12 +123,15 @@ Each feature package follows **Clean Architecture**:
 ## Features
 
 ### Current Features
-- **Product Listing** – Browse products from WooCommerce store
-- **Product Search** – Search and filter products
-- **Product Details** – View detailed product information
-- **Image Gallery** – Product image carousel
+- **Product Listing** – Browse products from WooCommerce store in a responsive grid layout
+- **Infinite Scroll Pagination** – Automatically loads more products as you scroll (20 products per page)
+- **Product Details** – View detailed product information with image gallery
+- **Image Gallery** – Swipeable product images with PageView
+- **Loading States** – Proper loading indicators and error handling
+- **Tap Navigation** – Tap any product card to view full details
 
 ### Planned Features
+- **Product Search** – Search and filter products
 - **Shopping Cart** – Add/remove items, update quantities
 - **Authentication** – User login/registration
 - **Checkout** – Order placement and payment
@@ -171,18 +174,20 @@ Each feature package follows **Clean Architecture**:
    flutter pub get
    ```
 
-3. **Configure API credentials**
+3. **Configure API base URL**
    
-   Edit `packages/common/lib/src/config/api_config.dart`:
-   ```dart
-   class ApiConfig {
-     static const String baseUrl = 'https://shopapi.rubylearner.com';
-     static const String consumerKey = 'YOUR_CONSUMER_KEY';
-     static const String consumerSecret = 'YOUR_CONSUMER_SECRET';
-   }
-   ```
+   Update the base URL in your dependency injection setup (typically in `lib/main.dart` or a setup file):
+   - Set base URL to: `https://shopapi.rubylearner.com/api.php`
+   - Configure Dio with proper timeouts (10 seconds recommended)
+   - Add PrettyDioLogger interceptor for debugging
+   - Register Dio instance with GetIt using `instanceName: 'product'`
 
-4. **Run the app**
+4. **Initialize dependencies in main.dart**
+   - Call `WidgetsFlutterBinding.ensureInitialized()`
+   - Await `setUpCommonDependency()` before running the app
+   - Then run the app with `runApp(const MyApp())`
+
+5. **Run the app**
    ```bash
    flutter run
    ```
@@ -205,50 +210,70 @@ Each feature package follows **Clean Architecture**:
 - Common models and utilities
 
 **Usage in other packages:**
-```yaml
-# packages/products/pubspec.yaml
-dependencies:
-  common:
-    path: ../common
-```
+- Add `common` package as a dependency in `pubspec.yaml`
+- Use path reference: `path: ../common`
 
 ### `products` Package
 
 **Features:**
-- Product listing with pagination
-- Product search and filtering
-- Product details page
-- Category-based browsing
+- **Product listing** with infinite scroll pagination (20 items per page)
+- **Product grid view** with 2-column responsive layout
+- **Single product detail** page with image gallery and full information
+- **State management** using Riverpod (NotifierProvider and FamilyNotifier)
+- **Loading states** for both list and detail views
+- **Error handling** with retry functionality
 
 **Clean Architecture Layers:**
-- **Data**: `ProductService`, `ProductRepository`, `ProductModel`
-- **Domain**: `Product` entity, `GetProducts` use case
-- **Presentation**: `ProductListPage`, `ProductDetailPage`, state management
+- **Data**: `ProductService` (getProducts, getSingleProduct), `ProductModel`
+- **Domain**: Business logic for fetching and displaying products
+- **Presentation**: 
+  - `ProductListPage` – Grid view with pagination
+  - `ProductDetailPage` – Single product with image gallery
+  - `ProductStateNotifier` – Manages product list state
+  - `ProductDetailNotifier` – Manages single product state
 
 ---
 
 ## API Integration
 
-This app uses **WooCommerce REST API v3** from:
+This app uses **WooCommerce REST API v3** via a **PHP proxy** for security:
 - **API Documentation**: [https://shopapi.rubylearner.com/api-documentations/](https://shopapi.rubylearner.com/api-documentations/)
-- **Base URL**: `https://shopapi.rubylearner.com`
+- **Proxy URL**: `https://shopapi.rubylearner.com/api.php`
+- **Base WooCommerce API**: `https://shopapi.rubylearner.com/wp-json/wc/v3/`
+
+### PHP Proxy Architecture
+
+The app uses a PHP proxy (`api.php`) to:
+- **Hide WooCommerce credentials** from the client app
+- **Control access** to specific endpoints using regex patterns
+- **Forward requests** to the WooCommerce API with authentication
+- **Return responses** directly to the Flutter app
 
 ### Main Endpoints Used
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/wp-json/wc/v3/products` | GET | Get all products |
-| `/wp-json/wc/v3/products/{id}` | GET | Get single product |
-| `/wp-json/wc/v3/products/categories` | GET | Get product categories |
-| `/wp-json/wc/v3/orders` | POST | Create new order |
-| `/wp-json/wc/v3/customers` | POST | Create customer |
+| Flutter Request | Proxied To | Description |
+|----------------|------------|-------------|
+| `?endpoint=products&page=1&per_page=20` | `/wp-json/wc/v3/products` | Get paginated products |
+| `?endpoint=products/799` | `/wp-json/wc/v3/products/799` | Get single product by ID |
+| `?endpoint=products/categories` | `/wp-json/wc/v3/products/categories` | Get product categories |
+| `?endpoint=orders` | `/wp-json/wc/v3/orders` | Get/Create orders |
+
+### Allowed Endpoint Patterns (PHP Proxy)
+
+The proxy accepts these patterns:
+- `products` – All products
+- `products/{id}` – Single product (e.g., `products/799`)
+- `products/categories` – Product categories
+- `products/categories/{id}` – Single category
+- `orders` – Orders list
+- `orders/{id}` – Single order
+- `customers` – Customers list
+- `customers/{id}` – Single customer
 
 ### Authentication
-- **Type**: HTTP Basic Authentication
-- **Headers**:
-  ```
-  Authorization: Basic base64(consumerKey:consumerSecret)
-  ```
+- **Type**: HTTP Basic Authentication (handled by PHP proxy)
+- **Client**: No credentials needed in Flutter app
+- **Proxy**: Uses consumer key/secret to authenticate with WooCommerce
 
 ---
 
@@ -262,32 +287,16 @@ This app uses **WooCommerce REST API v3** from:
    ```
 
 2. **Add dependency to common**
-   ```yaml
-   # packages/feature_name/pubspec.yaml
-   dependencies:
-     flutter:
-       sdk: flutter
-     common:
-       path: ../common
-   ```
+   - Edit `packages/feature_name/pubspec.yaml`
+   - Add `common` as a path dependency: `path: ../common`
 
 3. **Structure the package**
-   ```
-   packages/feature_name/lib/
-   ├── feature_name.dart          # Public API
-   └── src/
-       ├── data/
-       ├── domain/
-       └── presentation/
-   ```
+   - Create `feature_name.dart` as the public API
+   - Organize code in `src/` folder with `data/`, `domain/`, and `presentation/` layers
 
 4. **Add to main app**
-   ```yaml
-   # pubspec.yaml (root)
-   dependencies:
-     feature_name:
-       path: packages/feature_name
-   ```
+   - Edit root `pubspec.yaml`
+   - Add feature package as a path dependency: `path: packages/feature_name`
 
 ### Running Tests
 

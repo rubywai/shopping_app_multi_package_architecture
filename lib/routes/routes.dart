@@ -23,6 +23,16 @@ final routes = GoRouter(
               builder: (context, state) {
                 return const ProductListPage();
               },
+              routes: [
+                GoRoute(
+                  path: 'product/:id',
+                  name: 'product-detail',
+                  builder: (context, state) {
+                    final productId = int.parse(state.pathParameters['id']!);
+                    return ProductDetailPage(productId: productId);
+                  },
+                ),
+              ],
             ),
           ],
         ),
