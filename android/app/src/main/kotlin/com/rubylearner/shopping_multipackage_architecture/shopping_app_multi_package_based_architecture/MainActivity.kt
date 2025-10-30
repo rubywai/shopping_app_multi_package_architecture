@@ -1,5 +1,0 @@
-package com.rubylearner.shopping_multipackage_architecture.shopping_app_multi_package_based_architecture
-
-import io.flutter.embedding.android.FlutterActivity
-
-class MainActivity: FlutterActivity()
