@@ -1,5 +1,7 @@
 import 'package:common/common.dart';
 import 'package:cart/cart.dart';
+import 'package:auth/auth.dart';
+import 'package:profile/profile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'routes/routes.dart';
@@ -8,6 +10,8 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await setUpCommonDependency();
   await setUpCartDependency();
+  await setUpAuthDependency();
+  await setUpProfileDependency();
   runApp(
     const ProviderScope(
       child: MyApp(),

@@ -11,7 +11,6 @@ A Flutter e-commerce application built with multi-package architecture using Woo
 - [Packages](#packages)
 - [Getting Started](#getting-started)
 - [API Documentation](#api-documentation)
-- [State Management](#state-management)
 - [Dependencies](#dependencies)
 
 ---
@@ -32,25 +31,75 @@ This is a modern Flutter shopping application that demonstrates clean architectu
 
 ## Features
 
+### Authentication & User Management
+- ✅ User registration with email and password
+- ✅ User login with JWT authentication
+- ✅ Secure token storage (SharedPreferences)
+- ✅ Auto-login on app restart
+- ✅ User logout functionality
+- ✅ Auth state persistence
+
 ### Product Management
 - ✅ Product list with grid view
 - ✅ Product detail with image carousel
 - ✅ Product search with real-time filtering
-- ✅ Category-based filtering
-- ✅ Pagination support
+- ✅ Category listing and browsing
+- ✅ Category-based product filtering
+- ✅ Pagination support with load more
+- ✅ Product variations support (size, color)
+- ✅ Product attributes display
+
+### Shopping Cart
+- ✅ Add to cart with quantity selection
+- ✅ Cart item management (add, update, remove)
+- ✅ Local cart storage (SQLite)
+- ✅ Cart badge with item count
+- ✅ Cart total calculation
+- ✅ Persistent cart across sessions
+- ✅ Clear cart after order
+
+### User Profile
+- ✅ View customer profile information
+- ✅ Edit customer information (name, phone, address)
+- ✅ Edit billing address
+- ✅ Customer data auto-load from WooCommerce
+- ✅ Profile auto-fill in checkout
+
+### Checkout & Orders
+- ✅ Complete checkout flow
+- ✅ Billing address form with validation
+- ✅ Shipping address (same as billing or separate)
+- ✅ Shipping method selection with costs
+- ✅ Payment method selection (COD, Bank Transfer)
+- ✅ Order notes (optional)
+- ✅ Order summary with totals
+- ✅ Create order via WooCommerce API
+- ✅ Cart clearing after successful order
+
+### Shipping
+- ✅ Shipping zone support
+- ✅ Multiple shipping methods (flat rate, free shipping)
+- ✅ Dynamic shipping cost calculation
+- ✅ Shipping method selector widget
+- ✅ Zone-based method filtering
 
 ### UI/UX
 - ✅ Image carousel with indicators
-- ✅ Size selection for variable products
+- ✅ Size and color selection for variable products
 - ✅ Loading states and error handling
-- ✅ Bottom navigation
+- ✅ Bottom navigation with 4 tabs (Products, Categories, Cart, Profile)
 - ✅ Responsive design
+- ✅ Pull-to-refresh
+- ✅ Empty state handling
+- ✅ Success/error snackbar messages
 
 ### Performance
 - ✅ Optimized API calls with field filtering
 - ✅ Image caching
 - ✅ Debounced search
 - ✅ Lazy loading with pagination
+- ✅ Local database for cart persistence
+- ✅ Efficient state management with Riverpod
 
 ---
 
@@ -59,54 +108,42 @@ This is a modern Flutter shopping application that demonstrates clean architectu
 This project follows a **feature-based multi-package architecture** to achieve modularity, reusability, and separation of concerns.
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                         Main App                            │
-│                    (Shopping App Root)                      │
-└──────────────────────┬──────────────────────────────────────┘
-                       │
-           ┌───────────┴───────────┐
-           │                       │
-    ┌──────▼──────┐         ┌─────▼─────┐
-    │   Common    │         │  Products │
-    │   Package   │         │  Package  │
-    └─────────────┘         └───────────┘
-           │                       │
-    ┌──────▼──────────────┬────────▼─────────────┐
-    │   - Widgets         │   - UI (Pages)       │
-    │   - Constants       │   - Providers        │
-    │   - Dependencies    │   - Models           │
-    │   - Utils           │   - Services         │
-    └─────────────────────┴──────────────────────┘
+┌──────────────────────────────────────────────────────────────────┐
+│                          Main App                                │
+│                     (Shopping App Root)                          │
+│              Routes | DI Setup | Bottom Navigation               │
+└───────────────────────────┬──────────────────────────────────────┘
+                            │
+        ┌───────────────────┼───────────────────┬─────────────┐
+        │                   │                   │             │
+   ┌────▼────┐         ┌────▼────┐        ┌────▼────┐   ┌────▼────┐
+   │ Common  │         │Products │        │  Auth   │   │  Cart   │
+   │ Package │         │ Package │        │ Package │   │ Package │
+   └────┬────┘         └────┬────┘        └────┬────┘   └────┬────┘
+        │                   │                   │             │
+        │         ┌─────────┼──────────┬────────┼─────────────┤
+        │         │         │          │        │             │
+   ┌────▼────┐   │    ┌────▼────┐ ┌───▼────┐   │        ┌────▼────┐
+   │Shipping │   │    │ Profile │ │ Orders │   │        │         │
+   │ Package │   │    │ Package │ │Package │   │        │         │
+   └─────────┘   │    └─────────┘ └────────┘   │        │         │
+                 │                              │        │         │
+   ┌─────────────┴──────────────────────────────┴────────┴─────────┐
+   │            Each Package Contains:                              │
+   │   - UI (Pages, Widgets)                                        │
+   │   - Providers (State Management - Riverpod)                    │
+   │   - Models (Data Models)                                       │
+   │   - Services (API Calls - Dio)                                 │
+   │   - DI (Dependency Injection - GetIt)                          │
+   └────────────────────────────────────────────────────────────────┘
 ```
 
-### Architecture Layers
+### Key Principles
 
-#### 1. **Presentation Layer**
-- UI components (Pages, Widgets)
-- State management (Riverpod Notifiers)
-- Navigation (GoRouter)
-
-#### 2. **Domain Layer** (Implicit)
-- Business logic in state notifiers
-- Data models
-
-#### 3. **Data Layer**
-- API services (Dio)
-- Models (JSON serialization)
-- Dependency injection (GetIt)
-
-### Package Organization
-
-**Common Package** (`packages/common/`)
-- Shared widgets (ErrorRetryWidget, AppScaffold)
-- Constants (URL, App Config)
-- Dependency injection setup
-
-**Products Package** (`packages/products/`)
-- Product listing and detail pages
-- Search functionality
-- Category browsing
-- Product state management
+- **Modularity:** Each feature is a separate package
+- **Reusability:** Common utilities shared across features
+- **Separation of Concerns:** Clear boundaries between features
+- **Scalability:** Easy to add new features as packages
 
 ---
 
@@ -127,17 +164,29 @@ shopping_app_multi_package_based_architecture/
 │   │   │   │   └── widgets/        # Shared widgets
 │   │   │   └── common.dart         # Package exports
 │   │   └── pubspec.yaml
-│   └── products/                    # Products feature
+│   ├── products/                    # Products feature
+│   │   ├── lib/
+│   │   │   ├── src/
+│   │   │   │   ├── data/
+│   │   │   │   │   ├── models/     # Data models
+│   │   │   │   │   └── services/   # API services
+│   │   │   │   ├── providers/      # State management
+│   │   │   │   └── ui/
+│   │   │   │       ├── pages/      # Screens
+│   │   │   │       └── widgets/    # UI components
+│   │   │   └── products.dart       # Package exports
+│   │   └── pubspec.yaml
+│   └── shipping/                    # Shipping feature
 │       ├── lib/
 │       │   ├── src/
 │       │   │   ├── data/
-│       │   │   │   ├── models/     # Data models
-│       │   │   │   └── services/   # API services
-│       │   │   ├── providers/      # State management
+│       │   │   │   ├── models/     # Shipping models
+│       │   │   │   └── services/   # Shipping API
+│       │   │   ├── providers/      # Shipping state
 │       │   │   └── ui/
-│       │   │       ├── pages/      # Screens
-│       │   │       └── widgets/    # UI components
-│       │   └── products.dart       # Package exports
+│       │   │       ├── pages/      # Example page
+│       │   │       └── widgets/    # Shipping selector
+│       │   └── shipping.dart       # Package exports
 │       └── pubspec.yaml
 └── pubspec.yaml                     # Root dependencies
 ```
@@ -147,32 +196,25 @@ shopping_app_multi_package_based_architecture/
 ## Packages
 
 ### Common Package
-Provides shared functionality across features.
+Shared utilities, constants, widgets, and dependency injection setup used across all feature packages.
 
-**Exports:**
-- `UrlConst` - API base URL configuration
-- `ErrorRetryWidget` - Reusable error display with retry
-- `AppScaffold` - Bottom navigation scaffold
-- `setUpCommonDependency()` - Dio and GetIt setup
+### Auth Package
+User authentication and authorization with JWT token management and secure storage.
 
 ### Products Package
-Handles all product-related features.
+Product browsing, search, category filtering, and product detail display with variations support.
 
-**Pages:**
-- `ProductListPage` - Grid view of products
-- `ProductDetailPage` - Detailed product information
-- `ProductSearchPage` - Search with real-time results
-- `CategoryPage` - Category listing
-- `CategoryProductsPage` - Products filtered by category
+### Cart Package
+Shopping cart with local SQLite persistence for add, update, remove, and checkout operations.
 
-**Models:**
-- `ProductListModel` - Lightweight model for listings
-- `ProductDetailModel` - Complete model for details
-- `CategoryModel` - Category information
+### Profile Package
+Customer profile management with view and edit capabilities for personal information and billing address.
 
-**Services:**
-- `ProductService` - Product API calls
-- `CategoryService` - Category API calls
+### Orders Package
+Complete checkout flow with billing/shipping forms, payment selection, and order creation.
+
+### Shipping Package
+Shipping zone and method selection with dynamic cost calculation for checkout integration.
 
 ---
 
@@ -207,17 +249,98 @@ flutter run
 
 ## API Documentation
 
-### Base URL
+### Base URLs
+
+**Product/Category API:**
 ```
 https://shopapi.rubylearner.com/api.php
 ```
 
+**Auth API:**
+```
+https://shopapi.rubylearner.com/auth.php
+```
+
 ### Authentication
-The API uses a PHP proxy that handles WooCommerce authentication internally.
+- Product/Category APIs use a PHP proxy that handles WooCommerce authentication internally
+- Auth APIs return JWT tokens for user authentication
+- Customer/Order APIs require JWT token in headers (handled by app)
 
 ---
 
-### 1. Get Products
+### 1. User Registration
+
+**Endpoint:** `POST /auth.php?action=register`
+
+**Query Parameters:**
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| email | string | User email address |
+| password | string | User password |
+
+**Example Request:**
+```
+POST /auth.php?action=register&email=user@example.com&password=mypassword
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Registration successful!",
+  "data": {
+    "success": true,
+    "id": "5",
+    "message": "User was successfully created.",
+    "user": {
+      "ID": "5",
+      "user_login": "waiphyoaung123",
+      "user_email": "user@example.com",
+      "display_name": "User Name"
+    },
+    "roles": ["subscriber"]
+  }
+}
+```
+
+---
+
+### 2. User Login
+
+**Endpoint:** `POST /auth.php?action=login`
+
+**Query Parameters:**
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| email | string | User email address |
+| password | string | User password |
+
+**Example Request:**
+```
+POST /auth.php?action=login&email=user@example.com&password=mypassword
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "success": true,
+    "data": {
+      "jwt": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+      "iat": 1761884530,
+      "exp": 1761888130,
+      "email": "user@example.com",
+      "id": "5",
+      "username": "waiphyoaung123"
+    }
+  }
+}
+```
+
+---
+
+### 3. Get Products
 
 **Endpoint:** `GET /api.php?endpoint=products`
 
@@ -267,7 +390,7 @@ GET /api.php?endpoint=products&page=1&per_page=20&_fields=id,name,slug,price,reg
 
 ---
 
-### 2. Get Single Product
+### 4. Get Single Product
 
 **Endpoint:** `GET /api.php?endpoint=products/{id}`
 
@@ -363,7 +486,7 @@ GET /api.php?endpoint=products/799&_fields=id,name,slug,price,regular_price,sale
 
 ---
 
-### 3. Search Products
+### 5. Search Products
 
 **Endpoint:** `GET /api.php?endpoint=products&search={query}`
 
@@ -376,7 +499,7 @@ GET /api.php?endpoint=products&search=shirt&page=1&per_page=20
 
 ---
 
-### 4. Get Categories
+### 6. Get Categories
 
 **Endpoint:** `GET /api.php?endpoint=products/categories`
 
@@ -418,7 +541,7 @@ GET /api.php?endpoint=products/categories&page=1&per_page=100&parent=0&hide_empt
 
 ---
 
-### 5. Get Products by Category
+### 7. Get Products by Category
 
 **Endpoint:** `GET /api.php?endpoint=products&category={id}`
 
@@ -431,32 +554,70 @@ GET /api.php?endpoint=products&category=41&page=1&per_page=20
 
 ---
 
-## State Management
+### 8. Get Shipping Methods
 
-The app uses **Riverpod** for state management with the following notifiers:
+**Endpoint:** `GET /api.php?endpoint=shipping/zones/{zoneId}/methods`
 
-### ProductStateNotifier
-Manages product listing state with pagination.
+**Path Parameters:**
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| zoneId | int | Shipping zone ID (e.g., 1 for Myanmar) |
 
-**Methods:**
-- `fetchProducts()` - Load initial products
-- `loadMore()` - Load next page
-- `searchProducts(String query)` - Search products
-- `fetchProductsByCategory(int categoryId)` - Filter by category
+**Example Request:**
+```
+GET /api.php?endpoint=shipping/zones/1/methods
+```
 
-### ProductDetailNotifier
-Manages single product detail state.
+**Response:**
+```json
+[
+  {
+    "id": 4,
+    "instance_id": 4,
+    "title": "နယ်မြို့",
+    "order": 1,
+    "enabled": true,
+    "method_id": "flat_rate",
+    "method_title": "Flat rate",
+    "method_description": "Flat rate shipping",
+    "settings": {
+      "cost": {
+        "value": "20"
+      }
+    }
+  },
+  {
+    "id": 5,
+    "instance_id": 5,
+    "title": "Free shipping",
+    "order": 2,
+    "enabled": true,
+    "method_id": "free_shipping",
+    "method_title": "Free shipping",
+    "method_description": "",
+    "settings": {}
+  }
+]
+```
 
-**Methods:**
-- `fetchProductDetail(int productId)` - Load product details
+**Usage in Order Creation:**
 
-### CategoryStateNotifier
-Manages category listing state.
+When creating an order, include the selected shipping method in `shipping_lines`:
 
-**Methods:**
-- `fetchCategories()` - Load all categories
+```json
+{
+  "shipping_lines": [
+    {
+      "method_id": "flat_rate",
+      "method_title": "Flat rate",
+      "total": "20"
+    }
+  ]
+}
+```
 
 ---
+
 
 ## Dependencies
 

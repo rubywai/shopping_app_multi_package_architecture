@@ -50,13 +50,15 @@ class AuthStateNotifier extends Notifier<AuthState> {
     _storageService = GetIt.instance.get<AuthStorageService>();
 
     // Check if user is already logged in
-    _checkAuthStatus();
+    // Use Future.microtask to ensure state update completes before other widgets read it
+    Future.microtask(() => _checkAuthStatus());
 
     return AuthState();
   }
 
   Future<void> _checkAuthStatus() async {
     final isLoggedIn = await _storageService.isLoggedIn();
+
     if (isLoggedIn) {
       final userData = await _storageService.getUserData();
       state = state.copyWith(
@@ -106,6 +108,7 @@ class AuthStateNotifier extends Notifier<AuthState> {
     state = state.copyWith(isLoading: true, error: null);
     try {
       final response = await _authService.login(request);
+
       if (response.success &&
           response.data?.success == true &&
           response.data?.data != null) {

@@ -20,6 +20,7 @@ class ProductDetailContent extends ConsumerStatefulWidget {
 
 class _ProductDetailContentState extends ConsumerState<ProductDetailContent> {
   String? selectedSize;
+  String? selectedColor;
   int _currentImageIndex = 0;
   final PageController _pageController = PageController();
   final TextEditingController _quantityController =
@@ -67,6 +68,19 @@ class _ProductDetailContentState extends ConsumerState<ProductDetailContent> {
 
     for (var attribute in widget.product.attributes!) {
       if (attribute.name?.toLowerCase() == 'size' &&
+          attribute.variation == true) {
+        return List<String>.from(attribute.options ?? []);
+      }
+    }
+    return [];
+  }
+
+  List<String> _getColorsFromProduct() {
+    // Find the Color attribute in the product attributes
+    if (widget.product.attributes == null) return [];
+
+    for (var attribute in widget.product.attributes!) {
+      if (attribute.name?.toLowerCase() == 'color' &&
           attribute.variation == true) {
         return List<String>.from(attribute.options ?? []);
       }
@@ -448,6 +462,59 @@ class _ProductDetailContentState extends ConsumerState<ProductDetailContent> {
                   const SizedBox(height: 16),
                 ],
 
+                // Color Selector (only show if product has color variations)
+                if (_getColorsFromProduct().isNotEmpty) ...[
+                  const Text(
+                    'Select Color',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 12,
+                    runSpacing: 12,
+                    children: _getColorsFromProduct().map((color) {
+                      final isSelected = selectedColor == color;
+                      return GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            selectedColor = color;
+                          });
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? Theme.of(context).primaryColor
+                                : Colors.grey[200],
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: isSelected
+                                  ? Theme.of(context).primaryColor
+                                  : Colors.grey[400]!,
+                              width: 2,
+                            ),
+                          ),
+                          child: Text(
+                            color,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: isSelected ? Colors.white : Colors.black87,
+                            ),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+
                 // Product Specifications
                 const Divider(height: 32),
                 const Text(
@@ -668,8 +735,9 @@ class _ProductDetailContentState extends ConsumerState<ProductDetailContent> {
                   child: ElevatedButton.icon(
                     onPressed: () async {
                       final availableSizes = _getSizesFromProduct();
+                      final availableColors = _getColorsFromProduct();
 
-                      // Only validate size if product has size variations
+                      // Validate size if product has size variations
                       if (availableSizes.isNotEmpty && selectedSize == null) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
@@ -680,15 +748,25 @@ class _ProductDetailContentState extends ConsumerState<ProductDetailContent> {
                         return;
                       }
 
+                      // Validate color if product has color variations
+                      if (availableColors.isNotEmpty && selectedColor == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Please select a color'),
+                            backgroundColor: Colors.orange,
+                          ),
+                        );
+                        return;
+                      }
+
                       // Capture ScaffoldMessenger before async gap
                       final messenger = ScaffoldMessenger.of(context);
 
-                      // Get the appropriate variation ID if size is selected
-                      // Get the appropriate variation ID if size is selected
+                      // Get the appropriate variation ID if size or color is selected
                       int? variationId;
-                      if (selectedSize != null &&
+                      if ((selectedSize != null || selectedColor != null) &&
                           widget.product.variations != null) {
-                        // Get the first variation that matches the selected size
+                        // Get the first variation that matches the selected options
                         // In a real app, you'd fetch variation details from the API
                         variationId = widget.product.variations!.isNotEmpty
                             ? widget.product.variations!.first.toInt()
@@ -706,6 +784,7 @@ class _ProductDetailContentState extends ConsumerState<ProductDetailContent> {
                             double.tryParse(widget.product.price ?? '0') ?? 0.0,
                         quantity: _quantity,
                         size: selectedSize,
+                        color: selectedColor,
                         variationId: variationId,
                       );
 
@@ -718,12 +797,21 @@ class _ProductDetailContentState extends ConsumerState<ProductDetailContent> {
 
                         if (!mounted) return;
 
+                        // Build variant info string
+                        String variantInfo = '';
+                        if (selectedSize != null && selectedColor != null) {
+                          variantInfo =
+                              ' (Size: $selectedSize, Color: $selectedColor)';
+                        } else if (selectedSize != null) {
+                          variantInfo = ' (Size: $selectedSize)';
+                        } else if (selectedColor != null) {
+                          variantInfo = ' (Color: $selectedColor)';
+                        }
+
                         messenger.showSnackBar(
                           SnackBar(
                             content: Text(
-                              selectedSize != null
-                                  ? 'Added $_quantity x ${widget.product.name} (Size: $selectedSize) to cart'
-                                  : 'Added $_quantity x ${widget.product.name} to cart',
+                              'Added $_quantity x ${widget.product.name}$variantInfo to cart',
                             ),
                             backgroundColor: Colors.green,
                             action: SnackBarAction(

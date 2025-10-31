@@ -49,8 +49,9 @@ class CartDatabase {
         price $realType,
         quantity $integerType,
         size TEXT,
+        color TEXT,
         variation_id INTEGER,
-        UNIQUE(product_id, size, variation_id)
+        UNIQUE(product_id, size, color, variation_id)
       )
     ''');
   }
@@ -58,21 +59,30 @@ class CartDatabase {
   Future<int> insertCartItem(CartItemModel item) async {
     final db = await instance.database;
 
-    // Check if item already exists based on product_id, variation_id AND size
+    // Check if item already exists based on product_id, size, color, and variation_id
     String whereClause;
     List<dynamic> whereArgs;
 
-    if (item.size != null) {
-      // If size is provided, check by product_id and size
-      whereClause = 'product_id = ? AND size = ?';
+    if (item.size != null && item.color != null) {
+      // If both size and color are provided
+      whereClause = 'product_id = ? AND size = ? AND color = ?';
+      whereArgs = [item.productId, item.size, item.color];
+    } else if (item.size != null) {
+      // If only size is provided
+      whereClause = 'product_id = ? AND size = ? AND color IS NULL';
       whereArgs = [item.productId, item.size];
+    } else if (item.color != null) {
+      // If only color is provided
+      whereClause = 'product_id = ? AND color = ? AND size IS NULL';
+      whereArgs = [item.productId, item.color];
     } else if (item.variationId != null) {
-      // If no size but has variation_id
+      // If no size/color but has variation_id
       whereClause = 'product_id = ? AND variation_id = ?';
       whereArgs = [item.productId, item.variationId];
     } else {
       // Simple product without variations
-      whereClause = 'product_id = ? AND size IS NULL AND variation_id IS NULL';
+      whereClause =
+          'product_id = ? AND size IS NULL AND color IS NULL AND variation_id IS NULL';
       whereArgs = [item.productId];
     }
 

@@ -1,12 +1,65 @@
 import 'package:common/common.dart';
-import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:products/products.dart';
 import 'package:cart/cart.dart';
+import 'package:auth/auth.dart';
+import 'package:profile/profile.dart';
+import 'package:orders/orders.dart';
+import 'package:get_it/get_it.dart';
 
 final routes = GoRouter(
-  initialLocation: '/',
+  initialLocation: '/login',
+  redirect: (context, state) async {
+    final authStorage = GetIt.instance.get<AuthStorageService>();
+    final isAuthenticated = await authStorage.isLoggedIn();
+
+    final isAuthRoute = state.matchedLocation == '/login' ||
+        state.matchedLocation == '/register' ||
+        state.matchedLocation == '/verify-otp' ||
+        state.matchedLocation == '/forgot-password';
+
+    // If user is authenticated and trying to access auth pages, redirect to products
+    if (isAuthenticated && isAuthRoute) {
+      return '/products';
+    }
+
+    // If user is not authenticated and trying to access protected pages, redirect to login
+    if (!isAuthenticated && !isAuthRoute) {
+      return '/login';
+    }
+
+    return null; // No redirect needed
+  },
   routes: [
+    // Auth routes (outside bottom nav)
+    GoRoute(
+      path: '/login',
+      name: 'login',
+      builder: (context, state) => const LoginPage(),
+    ),
+    GoRoute(
+      path: '/register',
+      name: 'register',
+      builder: (context, state) => const RegisterPage(),
+    ),
+    GoRoute(
+      path: '/verify-otp',
+      name: 'verify-otp',
+      builder: (context, state) {
+        final email = state.extra as String;
+        return VerifyOtpPage(email: email);
+      },
+    ),
+    GoRoute(
+      path: '/forgot-password',
+      name: 'forgot-password',
+      builder: (context, state) => const ForgotPasswordPage(),
+    ),
+    GoRoute(
+      path: '/checkout',
+      name: 'checkout',
+      builder: (context, state) => const CheckoutPage(),
+    ),
     StatefulShellRoute.indexedStack(
       builder: (
         context,
@@ -19,30 +72,28 @@ final routes = GoRouter(
         StatefulShellBranch(
           routes: [
             GoRoute(
-              path: '/',
+              path: '/products',
               name: 'products',
               builder: (context, state) {
                 return const ProductListPage();
               },
-              routes: [
-                GoRoute(
-                  path: 'product/:id',
-                  name: 'product-detail',
-                  builder: (context, state) {
-                    final productId = int.parse(state.pathParameters['id']!);
-                    return ProductDetailPage(
-                      productId: productId,
-                    );
-                  },
-                ),
-                GoRoute(
-                  path: 'search',
-                  name: 'search',
-                  builder: (context, state) {
-                    return const ProductSearchPage();
-                  },
-                ),
-              ],
+            ),
+            GoRoute(
+              path: '/product/:id',
+              name: 'product-detail',
+              builder: (context, state) {
+                final productId = int.parse(state.pathParameters['id']!);
+                return ProductDetailPage(
+                  productId: productId,
+                );
+              },
+            ),
+            GoRoute(
+              path: '/search',
+              name: 'search',
+              builder: (context, state) {
+                return const ProductSearchPage();
+              },
             ),
           ],
         ),
@@ -89,14 +140,30 @@ final routes = GoRouter(
               path: '/person',
               name: 'person',
               builder: (context, state) {
-                return const Center(
-                  child: Text("Person"),
-                );
+                return const ProfilePage();
               },
             ),
           ],
         ),
       ],
-    )
+    ),
+    // Edit billing route (outside bottom nav)
+    GoRoute(
+      path: '/profile/edit-billing',
+      name: 'edit-billing',
+      builder: (context, state) {
+        final customer = state.extra as CustomerModel;
+        return EditBillingPage(customer: customer);
+      },
+    ),
+    // Edit customer info route (outside bottom nav)
+    GoRoute(
+      path: '/profile/edit-info',
+      name: 'edit-info',
+      builder: (context, state) {
+        final customer = state.extra as CustomerModel;
+        return EditCustomerInfoPage(customer: customer);
+      },
+    ),
   ],
 );

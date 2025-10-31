@@ -1,5 +1,3 @@
-library auth;
-
 // Export models
 export 'src/data/models/register_request.dart';
 export 'src/data/models/register_response.dart';

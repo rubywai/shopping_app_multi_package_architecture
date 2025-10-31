@@ -75,7 +75,7 @@ class ProductGridView extends StatelessWidget {
         onTap: () {
           // Navigate to product detail page using GoRouter
           if (product.id != null) {
-            context.go('/product/${product.id!.toInt()}');
+            context.push('/product/${product.id!.toInt()}');
           }
         },
         child: Column(

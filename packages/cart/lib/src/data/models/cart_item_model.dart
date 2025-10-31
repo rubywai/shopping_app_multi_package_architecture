@@ -6,6 +6,7 @@ class CartItemModel {
   final double price;
   final int quantity;
   final String? size;
+  final String? color;
   final int? variationId;
 
   CartItemModel({
@@ -16,6 +17,7 @@ class CartItemModel {
     required this.price,
     required this.quantity,
     this.size,
+    this.color,
     this.variationId,
   });
 
@@ -28,6 +30,7 @@ class CartItemModel {
       'price': price,
       'quantity': quantity,
       'size': size,
+      'color': color,
       'variation_id': variationId,
     };
   }
@@ -41,6 +44,7 @@ class CartItemModel {
       price: map['price'] as double,
       quantity: map['quantity'] as int,
       size: map['size'] as String?,
+      color: map['color'] as String?,
       variationId: map['variation_id'] as int?,
     );
   }
@@ -53,6 +57,7 @@ class CartItemModel {
     double? price,
     int? quantity,
     String? size,
+    String? color,
     int? variationId,
   }) {
     return CartItemModel(
@@ -63,6 +68,7 @@ class CartItemModel {
       price: price ?? this.price,
       quantity: quantity ?? this.quantity,
       size: size ?? this.size,
+      color: color ?? this.color,
       variationId: variationId ?? this.variationId,
     );
   }

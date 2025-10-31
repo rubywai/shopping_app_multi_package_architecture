@@ -5,13 +5,30 @@ import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 
 Future<void> setUpCommonDependency() async {
   GetIt getIt = GetIt.instance;
-  Dio dio = Dio();
-  dio.options.baseUrl = UrlConst.baseUrl;
-  dio.options.connectTimeout = const Duration(seconds: 30);
-  dio.options.receiveTimeout = const Duration(seconds: 30);
-  dio.interceptors.add(PrettyDioLogger());
+
+  // Product Dio
+  Dio productDio = Dio();
+  productDio.options.baseUrl = UrlConst.baseUrl;
+  productDio.options.connectTimeout = const Duration(seconds: 30);
+  productDio.options.receiveTimeout = const Duration(seconds: 30);
+  productDio.interceptors.add(PrettyDioLogger(
+    requestHeader: true,
+  ));
   getIt.registerSingleton<Dio>(
-    dio,
+    productDio,
     instanceName: 'product',
   );
+
+  // Shipping Dio (can reuse same config or customize)
+  Dio shippingDio = Dio();
+  shippingDio.options.baseUrl = UrlConst.baseUrl;
+  shippingDio.options.connectTimeout = const Duration(seconds: 30);
+  shippingDio.options.receiveTimeout = const Duration(seconds: 30);
+  shippingDio.interceptors.add(PrettyDioLogger());
+  getIt.registerSingleton<Dio>(
+    shippingDio,
+    instanceName: 'shipping',
+  );
+
+  // Note: Auth Dio is registered in auth package's setUpAuthDependency()
 }

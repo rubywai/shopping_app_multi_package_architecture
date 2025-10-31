@@ -58,4 +58,4 @@ flutter:
   #
   # For details regarding fonts in packages, see
   # https://flutter.dev/to/font-from-package
-t a
+  uses-material-design: true

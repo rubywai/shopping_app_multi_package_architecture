@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../data/models/cart_item_model.dart';
 import '../../providers/cart_state_notifier.dart';
 
@@ -174,6 +175,11 @@ class CartItemWidget extends ConsumerWidget {
                       'Size: ${item.size}',
                       style: const TextStyle(color: Colors.grey),
                     ),
+                  if (item.color != null)
+                    Text(
+                      'Color: ${item.color}',
+                      style: const TextStyle(color: Colors.grey),
+                    ),
                   const SizedBox(height: 8),
                   Text(
                     '\$${item.price.toStringAsFixed(2)}',
@@ -292,7 +298,7 @@ class CartSummary extends ConsumerWidget {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-                  // TODO: Navigate to checkout
+                  context.push('/checkout');
                 },
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
