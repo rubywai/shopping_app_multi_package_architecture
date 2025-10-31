@@ -711,12 +711,10 @@ class _ProductDetailContentState extends ConsumerState<ProductDetailContent> {
 
                       try {
                         // Add to cart using the notifier so cart state updates
-                        print(
-                            '🛒 Product Detail: Adding item to cart via notifier...');
+
                         await ref
                             .read(cartStateNotifierProvider.notifier)
                             .addToCart(cartItem);
-                        print('🛒 Product Detail: Item added successfully!');
 
                         if (!mounted) return;
 

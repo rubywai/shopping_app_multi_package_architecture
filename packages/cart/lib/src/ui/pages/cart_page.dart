@@ -56,19 +56,13 @@ class CartContent extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final cartState = ref.watch(cartStateNotifierProvider);
 
-    // Debug logging
-    print(
-        '🛒 Cart State - Items: ${cartState.items.length}, Loading: ${cartState.isLoading}, Error: ${cartState.error}');
-
     if (cartState.isLoading) {
-      print('🛒 Showing loading indicator');
       return const Center(
         child: CircularProgressIndicator(),
       );
     }
 
     if (cartState.error != null) {
-      print('🛒 Error occurred: ${cartState.error}');
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -85,7 +79,6 @@ class CartContent extends ConsumerWidget {
     }
 
     if (cartState.items.isEmpty) {
-      print('🛒 Cart is empty');
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -109,8 +102,6 @@ class CartContent extends ConsumerWidget {
         ),
       );
     }
-
-    print('🛒 Displaying ${cartState.items.length} items');
 
     return Column(
       children: [

@@ -20,9 +20,18 @@ class CartDatabase {
 
     return await openDatabase(
       path,
-      version: 1,
+      version: 2,
       onCreate: _createDB,
+      onUpgrade: _upgradeDB,
     );
+  }
+
+  Future _upgradeDB(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      // Drop old table and recreate with new schema
+      await db.execute('DROP TABLE IF EXISTS cart_items');
+      await _createDB(db, newVersion);
+    }
   }
 
   Future _createDB(Database db, int version) async {
@@ -41,7 +50,7 @@ class CartDatabase {
         quantity $integerType,
         size TEXT,
         variation_id INTEGER,
-        UNIQUE(product_id, variation_id)
+        UNIQUE(product_id, size, variation_id)
       )
     ''');
   }
@@ -49,14 +58,28 @@ class CartDatabase {
   Future<int> insertCartItem(CartItemModel item) async {
     final db = await instance.database;
 
-    // Check if item already exists
+    // Check if item already exists based on product_id, variation_id AND size
+    String whereClause;
+    List<dynamic> whereArgs;
+
+    if (item.size != null) {
+      // If size is provided, check by product_id and size
+      whereClause = 'product_id = ? AND size = ?';
+      whereArgs = [item.productId, item.size];
+    } else if (item.variationId != null) {
+      // If no size but has variation_id
+      whereClause = 'product_id = ? AND variation_id = ?';
+      whereArgs = [item.productId, item.variationId];
+    } else {
+      // Simple product without variations
+      whereClause = 'product_id = ? AND size IS NULL AND variation_id IS NULL';
+      whereArgs = [item.productId];
+    }
+
     final existing = await db.query(
       'cart_items',
-      where:
-          'product_id = ? AND variation_id ${item.variationId == null ? 'IS NULL' : '= ?'}',
-      whereArgs: item.variationId == null
-          ? [item.productId]
-          : [item.productId, item.variationId],
+      where: whereClause,
+      whereArgs: whereArgs,
     );
 
     if (existing.isNotEmpty) {
@@ -73,16 +96,9 @@ class CartDatabase {
   }
 
   Future<List<CartItemModel>> getAllCartItems() async {
-    print('🛒 CartDatabase: Getting database instance...');
     final db = await instance.database;
-    print('🛒 CartDatabase: Querying cart_items table...');
     final result = await db.query('cart_items');
-    print('🛒 CartDatabase: Query returned ${result.length} rows');
-    if (result.isNotEmpty) {
-      print('🛒 CartDatabase: First row: ${result.first}');
-    }
     final items = result.map((json) => CartItemModel.fromMap(json)).toList();
-    print('🛒 CartDatabase: Mapped to ${items.length} CartItemModel objects');
     return items;
   }
 

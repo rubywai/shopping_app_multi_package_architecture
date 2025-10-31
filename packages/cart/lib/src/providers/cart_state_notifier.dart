@@ -38,31 +38,20 @@ class CartStateNotifier extends Notifier<CartState> {
 
   @override
   CartState build() {
-    print('🛒 CartStateNotifier: Initializing...');
     _cartService = GetIt.instance.get<CartService>();
-    print('🛒 CartStateNotifier: CartService obtained');
 
     // Schedule loadCartItems to run after build completes
     Future.microtask(() => loadCartItems());
-    print('🛒 CartStateNotifier: loadCartItems scheduled');
 
     return CartState();
   }
 
   Future<void> loadCartItems() async {
-    print('🛒 loadCartItems: Starting to load cart items...');
     state = state.copyWith(isLoading: true);
     try {
       final items = await _cartService.getCartItems();
-      print('🛒 loadCartItems: Loaded ${items.length} items from database');
-      for (var item in items) {
-        print(
-            '  - ${item.productName} (qty: ${item.quantity}, price: \$${item.price})');
-      }
       state = state.copyWith(items: items, isLoading: false);
-      print('🛒 loadCartItems: State updated with ${items.length} items');
     } catch (e) {
-      print('🛒 loadCartItems: ERROR - $e');
       state = state.copyWith(
         error: e.toString(),
         isLoading: false,

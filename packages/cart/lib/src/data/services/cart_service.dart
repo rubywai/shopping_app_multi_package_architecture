@@ -9,9 +9,7 @@ class CartService {
   }
 
   Future<List<CartItemModel>> getCartItems() async {
-    print('🛒 CartService: Getting cart items from database...');
     final items = await _database.getAllCartItems();
-    print('🛒 CartService: Retrieved ${items.length} items from database');
     return items;
   }
 
