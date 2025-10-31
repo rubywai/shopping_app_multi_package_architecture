@@ -7,8 +7,8 @@ Future<void> setUpCommonDependency() async {
   GetIt getIt = GetIt.instance;
   Dio dio = Dio();
   dio.options.baseUrl = UrlConst.baseUrl;
-  dio.options.connectTimeout = const Duration(seconds: 10);
-  dio.options.receiveTimeout = const Duration(seconds: 10);
+  dio.options.connectTimeout = const Duration(seconds: 30);
+  dio.options.receiveTimeout = const Duration(seconds: 30);
   dio.interceptors.add(PrettyDioLogger());
   getIt.registerSingleton<Dio>(
     dio,
