@@ -272,7 +272,7 @@ https://shopapi.rubylearner.com/auth.php
 
 **Endpoint:** `POST /auth.php?action=register`
 
-**Query Parameters:**
+**Request Body (Form Data):**
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | email | string | User email address |
@@ -280,7 +280,10 @@ https://shopapi.rubylearner.com/auth.php
 
 **Example Request:**
 ```
-POST /auth.php?action=register&email=user@example.com&password=mypassword
+POST /auth.php?action=register
+Content-Type: application/x-www-form-urlencoded
+
+email=user@example.com&password=mypassword
 ```
 
 **Response:**
@@ -309,7 +312,7 @@ POST /auth.php?action=register&email=user@example.com&password=mypassword
 
 **Endpoint:** `POST /auth.php?action=login`
 
-**Query Parameters:**
+**Request Body (Form Data):**
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | email | string | User email address |
@@ -317,7 +320,10 @@ POST /auth.php?action=register&email=user@example.com&password=mypassword
 
 **Example Request:**
 ```
-POST /auth.php?action=login&email=user@example.com&password=mypassword
+POST /auth.php?action=login
+Content-Type: application/x-www-form-urlencoded
+
+email=user@example.com&password=mypassword
 ```
 
 **Response:**
@@ -600,19 +606,159 @@ GET /api.php?endpoint=shipping/zones/1/methods
 ]
 ```
 
-**Usage in Order Creation:**
+---
 
-When creating an order, include the selected shipping method in `shipping_lines`:
+### 9. Get Customer
 
+**Endpoint:** `GET /api.php?endpoint=customers/{id}`
+
+**Path Parameters:**
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| id | string | Customer ID |
+
+**Example Request:**
+```
+GET /api.php?endpoint=customers/5
+```
+
+**Response:**
 ```json
 {
+  "id": 5,
+  "email": "user@example.com",
+  "first_name": "John",
+  "last_name": "Doe",
+  "username": "johndoe",
+  "billing": {
+    "first_name": "John",
+    "last_name": "Doe",
+    "email": "user@example.com",
+    "phone": "09123456789",
+    "address_1": "123 Main St",
+    "address_2": "Apt 4B",
+    "city": "Yangon",
+    "state": "Yangon",
+    "postcode": "11111",
+    "country": "MM"
+  },
+  "shipping": {
+    "first_name": "John",
+    "last_name": "Doe",
+    "address_1": "123 Main St",
+    "address_2": "Apt 4B",
+    "city": "Yangon",
+    "state": "Yangon",
+    "postcode": "11111",
+    "country": "MM"
+  },
+  "avatar_url": "https://secure.gravatar.com/avatar/..."
+}
+```
+
+---
+
+### 10. Update Customer
+
+**Endpoint:** `PUT /api.php?endpoint=customers/{id}`
+
+**Path Parameters:**
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| id | string | Customer ID |
+
+**Request Body (JSON):**
+```json
+{
+  "first_name": "John",
+  "last_name": "Doe",
+  "billing": {
+    "first_name": "John",
+    "last_name": "Doe",
+    "email": "user@example.com",
+    "phone": "09123456789",
+    "address_1": "123 Main St",
+    "address_2": "Apt 4B",
+    "city": "Yangon",
+    "state": "Yangon",
+    "postcode": "11111",
+    "country": "MM"
+  }
+}
+```
+
+**Response:** Same as Get Customer
+
+---
+
+### 11. Create Order
+
+**Endpoint:** `POST /api.php?endpoint=orders`
+
+**Request Body (JSON):**
+```json
+{
+  "payment_method": "cod",
+  "payment_method_title": "Cash on Delivery",
+  "set_paid": false,
+  "billing": {
+    "first_name": "John",
+    "last_name": "Doe",
+    "email": "user@example.com",
+    "phone": "09123456789",
+    "address_1": "123 Main St",
+    "address_2": "Apt 4B",
+    "city": "Yangon",
+    "state": "Yangon",
+    "postcode": "11111",
+    "country": "MM"
+  },
+  "shipping": {
+    "first_name": "John",
+    "last_name": "Doe",
+    "address_1": "123 Main St",
+    "address_2": "Apt 4B",
+    "city": "Yangon",
+    "state": "Yangon",
+    "postcode": "11111",
+    "country": "MM"
+  },
+  "line_items": [
+    {
+      "product_id": 799,
+      "quantity": 2,
+      "variation_id": 800
+    }
+  ],
   "shipping_lines": [
     {
       "method_id": "flat_rate",
-      "method_title": "Flat rate",
+      "method_title": "နယ်မြို့",
       "total": "20"
     }
-  ]
+  ],
+  "customer_note": "Please deliver in the evening"
+}
+```
+
+**Response:**
+```json
+{
+  "id": 860,
+  "order_key": "wc_order_TqAqBvJUZiwKt",
+  "status": "checkout-draft",
+  "currency": "MMK",
+  "total": "365",
+  "subtotal": "345",
+  "shipping_total": "20",
+  "payment_method": "cod",
+  "payment_method_title": "Cash on Delivery",
+  "billing": { /* billing address */ },
+  "shipping": { /* shipping address */ },
+  "line_items": [ /* ordered items */ ],
+  "shipping_lines": [ /* shipping method */ ],
+  "date_created": "2025-10-31T11:45:20",
+  "payment_url": "https://shopapi.rubylearner.com/checkout/order-pay/860/..."
 }
 ```
 
