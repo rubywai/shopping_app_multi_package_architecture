@@ -712,7 +712,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
                       ),
                     ),
                     Text(
-                      '\$${item.totalPrice.toStringAsFixed(2)}',
+                      '${item.totalPrice.toStringAsFixed(2)} Ks',
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ],
@@ -724,7 +724,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text('Subtotal'),
-                Text('\$${subtotal.toStringAsFixed(2)}'),
+                Text('${subtotal.toStringAsFixed(2)} Ks'),
               ],
             ),
             const SizedBox(height: 8),
@@ -757,7 +757,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 Text(
-                  '\$${total.toStringAsFixed(2)}',
+                  '${total.toStringAsFixed(2)} Ks',
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,

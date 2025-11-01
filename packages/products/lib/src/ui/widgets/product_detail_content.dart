@@ -246,7 +246,7 @@ class _ProductDetailContentState extends ConsumerState<ProductDetailContent> {
                         widget.product.regularPrice != null &&
                         widget.product.regularPrice!.isNotEmpty) ...[
                       Text(
-                        '\$${widget.product.regularPrice}',
+                        '${widget.product.regularPrice} Ks',
                         style: TextStyle(
                           fontSize: 20,
                           color: Colors.grey[600],
@@ -256,7 +256,7 @@ class _ProductDetailContentState extends ConsumerState<ProductDetailContent> {
                       const SizedBox(width: 8),
                     ],
                     Text(
-                      '\$${widget.product.price ?? '0'}',
+                      '${widget.product.price ?? '0'} Ks',
                       style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
@@ -728,118 +728,148 @@ class _ProductDetailContentState extends ConsumerState<ProductDetailContent> {
                 ),
                 const SizedBox(height: 16),
 
+                // Stock and Manage Stock Information
+                _buildInfoRow('Stock Quantity:',
+                    widget.product.stockQuantity?.toString() ?? 'N/A'),
+
+                // Display stock quantity and manage stock
+                if (widget.product.manageStock == true &&
+                    widget.product.stockQuantity != null)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: Text(
+                      '${widget.product.stockQuantity} items available',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.green,
+                      ),
+                    ),
+                  ),
+
                 // Add to Cart Button with Cart Package Integration
                 SizedBox(
                   width: double.infinity,
                   height: 50,
                   child: ElevatedButton.icon(
-                    onPressed: () async {
-                      final availableSizes = _getSizesFromProduct();
-                      final availableColors = _getColorsFromProduct();
+                    onPressed: widget.product.manageStock == true &&
+                            (widget.product.stockQuantity == null ||
+                                _quantity > widget.product.stockQuantity!)
+                        ? null
+                        : () async {
+                            final availableSizes = _getSizesFromProduct();
+                            final availableColors = _getColorsFromProduct();
 
-                      // Validate size if product has size variations
-                      if (availableSizes.isNotEmpty && selectedSize == null) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Please select a size'),
-                            backgroundColor: Colors.orange,
-                          ),
-                        );
-                        return;
-                      }
+                            // Validate size if product has size variations
+                            if (availableSizes.isNotEmpty &&
+                                selectedSize == null) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Please select a size'),
+                                  backgroundColor: Colors.orange,
+                                ),
+                              );
+                              return;
+                            }
 
-                      // Validate color if product has color variations
-                      if (availableColors.isNotEmpty && selectedColor == null) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Please select a color'),
-                            backgroundColor: Colors.orange,
-                          ),
-                        );
-                        return;
-                      }
+                            // Validate color if product has color variations
+                            if (availableColors.isNotEmpty &&
+                                selectedColor == null) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Please select a color'),
+                                  backgroundColor: Colors.orange,
+                                ),
+                              );
+                              return;
+                            }
 
-                      // Capture ScaffoldMessenger before async gap
-                      final messenger = ScaffoldMessenger.of(context);
+                            // Capture ScaffoldMessenger before async gap
+                            final messenger = ScaffoldMessenger.of(context);
 
-                      // Get the appropriate variation ID if size or color is selected
-                      int? variationId;
-                      if ((selectedSize != null || selectedColor != null) &&
-                          widget.product.variations != null) {
-                        // Get the first variation that matches the selected options
-                        // In a real app, you'd fetch variation details from the API
-                        variationId = widget.product.variations!.isNotEmpty
-                            ? widget.product.variations!.first.toInt()
-                            : null;
-                      }
+                            // Get the appropriate variation ID if size or color is selected
+                            int? variationId;
+                            if ((selectedSize != null ||
+                                    selectedColor != null) &&
+                                widget.product.variations != null) {
+                              // Get the first variation that matches the selected options
+                              // In a real app, you'd fetch variation details from the API
+                              variationId =
+                                  widget.product.variations!.isNotEmpty
+                                      ? widget.product.variations!.first.toInt()
+                                      : null;
+                            }
 
-                      // Create cart item
-                      final cartItem = CartItemModel(
-                        productId: widget.product.id ?? 0,
-                        productName: widget.product.name ?? 'Unknown Product',
-                        productImage: widget.product.images?.isNotEmpty == true
-                            ? widget.product.images!.first.src ?? ''
-                            : '',
-                        price:
-                            double.tryParse(widget.product.price ?? '0') ?? 0.0,
-                        quantity: _quantity,
-                        size: selectedSize,
-                        color: selectedColor,
-                        variationId: variationId,
-                      );
+                            // Create cart item
+                            final cartItem = CartItemModel(
+                              productId: widget.product.id ?? 0,
+                              productName:
+                                  widget.product.name ?? 'Unknown Product',
+                              productImage:
+                                  widget.product.images?.isNotEmpty == true
+                                      ? widget.product.images!.first.src ?? ''
+                                      : '',
+                              price: double.tryParse(
+                                      widget.product.price ?? '0') ??
+                                  0.0,
+                              quantity: _quantity,
+                              size: selectedSize,
+                              color: selectedColor,
+                              variationId: variationId,
+                            );
 
-                      try {
-                        // Add to cart using the notifier so cart state updates
+                            try {
+                              // Add to cart using the notifier so cart state updates
+                              await ref
+                                  .read(cartStateNotifierProvider.notifier)
+                                  .addToCart(cartItem);
 
-                        await ref
-                            .read(cartStateNotifierProvider.notifier)
-                            .addToCart(cartItem);
+                              if (!mounted) return;
 
-                        if (!mounted) return;
+                              // Build variant info string
+                              String variantInfo = '';
+                              if (selectedSize != null &&
+                                  selectedColor != null) {
+                                variantInfo =
+                                    ' (Size: $selectedSize, Color: $selectedColor)';
+                              } else if (selectedSize != null) {
+                                variantInfo = ' (Size: $selectedSize)';
+                              } else if (selectedColor != null) {
+                                variantInfo = ' (Color: $selectedColor)';
+                              }
 
-                        // Build variant info string
-                        String variantInfo = '';
-                        if (selectedSize != null && selectedColor != null) {
-                          variantInfo =
-                              ' (Size: $selectedSize, Color: $selectedColor)';
-                        } else if (selectedSize != null) {
-                          variantInfo = ' (Size: $selectedSize)';
-                        } else if (selectedColor != null) {
-                          variantInfo = ' (Color: $selectedColor)';
-                        }
+                              messenger.showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    'Added $_quantity x ${widget.product.name}$variantInfo to cart',
+                                  ),
+                                  backgroundColor: Colors.green,
+                                  action: SnackBarAction(
+                                    label: 'VIEW CART',
+                                    textColor: Colors.white,
+                                    onPressed: () {
+                                      context.go('/cart');
+                                    },
+                                  ),
+                                ),
+                              );
 
-                        messenger.showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              'Added $_quantity x ${widget.product.name}$variantInfo to cart',
-                            ),
-                            backgroundColor: Colors.green,
-                            action: SnackBarAction(
-                              label: 'VIEW CART',
-                              textColor: Colors.white,
-                              onPressed: () {
-                                context.go('/cart');
-                              },
-                            ),
-                          ),
-                        );
+                              // Reset quantity after adding to cart
+                              setState(() {
+                                _quantity = 1;
+                                _quantityController.text = '1';
+                              });
+                            } catch (e) {
+                              if (!mounted) return;
 
-                        // Reset quantity after adding to cart
-                        setState(() {
-                          _quantity = 1;
-                          _quantityController.text = '1';
-                        });
-                      } catch (e) {
-                        if (!mounted) return;
-
-                        messenger.showSnackBar(
-                          SnackBar(
-                            content: Text('Failed to add to cart: $e'),
-                            backgroundColor: Colors.red,
-                          ),
-                        );
-                      }
-                    },
+                              messenger.showSnackBar(
+                                SnackBar(
+                                  content: Text('Failed to add to cart: $e'),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                            }
+                          },
                     icon: const Icon(Icons.shopping_cart),
                     label: const Text(
                       'Add to Cart',

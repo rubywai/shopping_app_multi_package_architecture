@@ -142,7 +142,7 @@ class ProductGridView extends StatelessWidget {
                     ),
                     // Product Price
                     Text(
-                      '\$${product.price ?? '0'}',
+                      '${product.price ?? '0'} Ks',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,

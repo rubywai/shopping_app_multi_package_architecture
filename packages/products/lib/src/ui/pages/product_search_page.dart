@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../providers/product_list/product_state_model.dart';
 import '../../providers/product_list/product_state_notifier.dart';
-import '../widgets/prodict_grid_view.dart';
+import '../widgets/product_grid_view.dart';
 
 class ProductSearchPage extends ConsumerStatefulWidget {
   const ProductSearchPage({super.key});

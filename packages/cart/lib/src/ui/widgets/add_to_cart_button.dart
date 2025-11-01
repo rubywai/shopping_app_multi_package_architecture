@@ -150,3 +150,7 @@ class AddToCartIconButton extends ConsumerWidget {
     }
   }
 }
+
+extension PriceFormatting on CartItemModel {
+  String get formattedPrice => '$price price Ks';
+}

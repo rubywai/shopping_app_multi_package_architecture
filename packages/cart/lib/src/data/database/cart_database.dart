@@ -47,6 +47,7 @@ class CartDatabase {
         product_name $textType,
         product_image $textType,
         price $realType,
+        formatted_price TEXT,
         quantity $integerType,
         size TEXT,
         color TEXT,

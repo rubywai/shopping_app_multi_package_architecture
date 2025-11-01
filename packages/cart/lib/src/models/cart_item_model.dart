@@ -48,4 +48,6 @@ class CartItemModel {
         size: json['size'] as String?,
         variationId: json['variationId'] as int?,
       );
+
+  String get formattedPrice => '$price price Ks';
 }

@@ -74,4 +74,6 @@ class CartItemModel {
   }
 
   double get totalPrice => price * quantity;
+
+  String get formattedPrice => '$price price Ks';
 }

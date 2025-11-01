@@ -41,7 +41,7 @@ class ProductService {
       queryParameters: {
         "endpoint": "products/$productId",
         "_fields":
-            "id,name,slug,price,regular_price,sale_price,on_sale,stock_status,description,short_description,images,categories,attributes,default_attributes,variations,average_rating,rating_count,reviews_allowed,sku,weight,dimensions,type,total_sales,tags,shipping_required,shipping_class",
+            "id,name,slug,price,regular_price,sale_price,on_sale,stock_status,description,short_description,images,categories,attributes,default_attributes,variations,average_rating,rating_count,reviews_allowed,sku,weight,dimensions,type,total_sales,tags,shipping_required,shipping_class,stock_quantity,manage_stock",
       },
     );
     return ProductDetailModel.fromJson(response.data);

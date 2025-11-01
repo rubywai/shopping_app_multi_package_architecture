@@ -182,7 +182,7 @@ class CartItemWidget extends ConsumerWidget {
                     ),
                   const SizedBox(height: 8),
                   Text(
-                    '\$${item.price.toStringAsFixed(2)}',
+                    '${item.price.toStringAsFixed(2)} Ks',
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -268,7 +268,7 @@ class CartSummary extends ConsumerWidget {
                   style: TextStyle(fontSize: 16),
                 ),
                 Text(
-                  '\$${cartState.totalPrice.toStringAsFixed(2)}',
+                  '${cartState.totalPrice.toStringAsFixed(2)} Ks',
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,

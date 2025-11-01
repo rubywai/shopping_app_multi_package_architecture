@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../providers/product_list/product_state_model.dart';
 import '../../providers/product_list/product_state_notifier.dart';
-import '../widgets/prodict_grid_view.dart';
+import '../widgets/product_grid_view.dart';
 
 class ProductListPage extends ConsumerStatefulWidget {
   const ProductListPage({super.key});

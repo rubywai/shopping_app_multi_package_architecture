@@ -115,26 +115,28 @@ class CreateOrderResponse {
       cartHash: json['cart_hash'] as String?,
       metaData: json['meta_data'] != null
           ? (json['meta_data'] as List)
-              .map((e) => OrderMetaData.fromJson(e))
-              .toList()
+                .map((e) => OrderMetaData.fromJson(e))
+                .toList()
           : null,
       lineItems: json['line_items'] != null
           ? (json['line_items'] as List)
-              .map((e) => OrderLineItemResponse.fromJson(e))
-              .toList()
+                .map((e) => OrderLineItemResponse.fromJson(e))
+                .toList()
           : null,
       taxLines: json['tax_lines'] != null
           ? (json['tax_lines'] as List)
-              .map((e) => OrderTaxLine.fromJson(e))
-              .toList()
+                .map((e) => OrderTaxLine.fromJson(e))
+                .toList()
           : null,
       shippingLines: json['shipping_lines'] != null
           ? (json['shipping_lines'] as List)
-              .map((e) => OrderShippingLineResponse.fromJson(e))
-              .toList()
+                .map((e) => OrderShippingLineResponse.fromJson(e))
+                .toList()
           : null,
     );
   }
+
+  String get formattedTotal => '$total Ks';
 }
 
 class OrderBilling {
@@ -276,8 +278,8 @@ class OrderLineItemResponse {
       totalTax: json['total_tax'] as String?,
       metaData: json['meta_data'] != null
           ? (json['meta_data'] as List)
-              .map((e) => OrderMetaData.fromJson(e))
-              .toList()
+                .map((e) => OrderMetaData.fromJson(e))
+                .toList()
           : null,
     );
   }
@@ -315,8 +317,8 @@ class OrderTaxLine {
       shippingTaxTotal: json['shipping_tax_total'] as String?,
       metaData: json['meta_data'] != null
           ? (json['meta_data'] as List)
-              .map((e) => OrderMetaData.fromJson(e))
-              .toList()
+                .map((e) => OrderMetaData.fromJson(e))
+                .toList()
           : null,
     );
   }
@@ -348,10 +350,9 @@ class OrderShippingLineResponse {
       totalTax: json['total_tax'] as String?,
       metaData: json['meta_data'] != null
           ? (json['meta_data'] as List)
-              .map((e) => OrderMetaData.fromJson(e))
-              .toList()
+                .map((e) => OrderMetaData.fromJson(e))
+                .toList()
           : null,
     );
   }
 }
-

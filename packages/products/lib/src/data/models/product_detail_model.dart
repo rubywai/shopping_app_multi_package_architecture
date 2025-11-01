@@ -25,6 +25,8 @@ class ProductDetailModel {
   final List<ProductTag>? tags;
   final bool? shippingRequired;
   final String? shippingClass;
+  final int? stockQuantity;
+  final bool? manageStock;
 
   ProductDetailModel({
     this.id,
@@ -53,6 +55,8 @@ class ProductDetailModel {
     this.tags,
     this.shippingRequired,
     this.shippingClass,
+    this.stockQuantity,
+    this.manageStock,
   });
 
   factory ProductDetailModel.fromJson(Map<String, dynamic> json) {
@@ -105,6 +109,8 @@ class ProductDetailModel {
           : null,
       shippingRequired: json['shipping_required'],
       shippingClass: json['shipping_class'],
+      stockQuantity: json['stock_quantity'],
+      manageStock: json['manage_stock'],
     );
   }
 
@@ -136,6 +142,8 @@ class ProductDetailModel {
       'tags': tags?.map((e) => e.toJson()).toList(),
       'shipping_required': shippingRequired,
       'shipping_class': shippingClass,
+      'stock_quantity': stockQuantity,
+      'manage_stock': manageStock,
     };
   }
 }

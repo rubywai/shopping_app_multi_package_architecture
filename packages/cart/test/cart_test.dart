@@ -14,5 +14,6 @@ void main() {
 
     expect(item.totalPrice, 20.0);
     expect(item.productName, 'Test Product');
+    expect(item.formattedPrice, '10.0 Ks');
   });
 }
