@@ -27,6 +27,8 @@ class ProductDetailModel {
   final String? shippingClass;
   final int? stockQuantity;
   final bool? manageStock;
+  final String? backorders;
+  final bool? backordersAllowed;
 
   ProductDetailModel({
     this.id,
@@ -57,6 +59,8 @@ class ProductDetailModel {
     this.shippingClass,
     this.stockQuantity,
     this.manageStock,
+    this.backorders,
+    this.backordersAllowed,
   });
 
   factory ProductDetailModel.fromJson(Map<String, dynamic> json) {
@@ -111,6 +115,8 @@ class ProductDetailModel {
       shippingClass: json['shipping_class'],
       stockQuantity: json['stock_quantity'],
       manageStock: json['manage_stock'],
+      backorders: json['backorders'],
+      backordersAllowed: json['backorders_allowed'],
     );
   }
 
@@ -144,6 +150,8 @@ class ProductDetailModel {
       'shipping_class': shippingClass,
       'stock_quantity': stockQuantity,
       'manage_stock': manageStock,
+      'backorders': backorders,
+      'backorders_allowed': backordersAllowed,
     };
   }
 }

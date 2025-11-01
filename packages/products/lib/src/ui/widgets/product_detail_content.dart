@@ -35,10 +35,13 @@ class _ProductDetailContentState extends ConsumerState<ProductDetailContent> {
   }
 
   void _incrementQuantity() {
-    setState(() {
-      _quantity++;
-      _quantityController.text = _quantity.toString();
-    });
+    final maxQuantity = _getMaxQuantity();
+    if (_quantity < maxQuantity) {
+      setState(() {
+        _quantity++;
+        _quantityController.text = _quantity.toString();
+      });
+    }
   }
 
   void _decrementQuantity() {
@@ -52,9 +55,11 @@ class _ProductDetailContentState extends ConsumerState<ProductDetailContent> {
 
   void _onQuantityChanged(String value) {
     final newQuantity = int.tryParse(value);
+    final maxQuantity = _getMaxQuantity();
     if (newQuantity != null && newQuantity > 0) {
       setState(() {
-        _quantity = newQuantity;
+        _quantity = newQuantity > maxQuantity ? maxQuantity : newQuantity;
+        _quantityController.text = _quantity.toString();
       });
     } else {
       // Reset to previous value if invalid
@@ -91,6 +96,88 @@ class _ProductDetailContentState extends ConsumerState<ProductDetailContent> {
   String _stripHtmlTags(String htmlText) {
     final RegExp exp = RegExp(r'<[^>]*>', multiLine: true, caseSensitive: true);
     return htmlText.replaceAll(exp, '').replaceAll('&nbsp;', ' ').trim();
+  }
+
+  String _getStockAvailabilityText() {
+    if (widget.product.manageStock == true) {
+      final quantity = widget.product.stockQuantity ?? 0;
+      if (quantity > 0) {
+        return '$quantity items available';
+      } else if (widget.product.backordersAllowed == true) {
+        return 'Available on backorder';
+      } else {
+        return 'Out of stock';
+      }
+    } else {
+      // Stock not managed, rely on stock_status
+      switch (widget.product.stockStatus?.toLowerCase()) {
+        case 'instock':
+          return 'In stock';
+        case 'outofstock':
+          return 'Out of stock';
+        case 'onbackorder':
+          return 'Available on backorder';
+        default:
+          return 'In stock';
+      }
+    }
+  }
+
+  Color _getStockAvailabilityColor() {
+    if (widget.product.manageStock == true) {
+      final quantity = widget.product.stockQuantity ?? 0;
+      if (quantity > 0) {
+        return quantity > 10 ? Colors.green : Colors.orange;
+      } else if (widget.product.backordersAllowed == true) {
+        return Colors.blue;
+      } else {
+        return Colors.red;
+      }
+    } else {
+      switch (widget.product.stockStatus?.toLowerCase()) {
+        case 'instock':
+          return Colors.green;
+        case 'outofstock':
+          return Colors.red;
+        case 'onbackorder':
+          return Colors.blue;
+        default:
+          return Colors.green;
+      }
+    }
+  }
+
+  bool _canAddToCart() {
+    // Check if product is out of stock
+    if (widget.product.stockStatus?.toLowerCase() == 'outofstock') {
+      // Allow if backorders are allowed
+      if (widget.product.backordersAllowed == true) {
+        return true;
+      }
+      return false;
+    }
+
+    // If stock is managed, check quantity
+    if (widget.product.manageStock == true) {
+      final stockQuantity = widget.product.stockQuantity ?? 0;
+      if (stockQuantity <= 0) {
+        // Allow if backorders are allowed
+        return widget.product.backordersAllowed == true;
+      }
+      // Check if requested quantity exceeds available stock
+      if (_quantity > stockQuantity) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  int _getMaxQuantity() {
+    if (widget.product.manageStock == true) {
+      return widget.product.stockQuantity ?? 999;
+    }
+    return 999; // Default max if stock is not managed
   }
 
   Widget _buildInfoRow(String label, String value) {
@@ -288,7 +375,46 @@ class _ProductDetailContentState extends ConsumerState<ProductDetailContent> {
                     ],
                   ],
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 12),
+
+                // Stock Availability
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: _getStockAvailabilityColor().withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(4),
+                    border: Border.all(
+                      color: _getStockAvailabilityColor(),
+                      width: 1,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        widget.product.stockStatus?.toLowerCase() ==
+                                'outofstock'
+                            ? Icons.cancel
+                            : Icons.check_circle,
+                        size: 16,
+                        color: _getStockAvailabilityColor(),
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        _getStockAvailabilityText(),
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: _getStockAvailabilityColor(),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
 
                 // SKU
                 if (widget.product.sku != null &&
@@ -728,33 +854,12 @@ class _ProductDetailContentState extends ConsumerState<ProductDetailContent> {
                 ),
                 const SizedBox(height: 16),
 
-                // Stock and Manage Stock Information
-                _buildInfoRow('Stock Quantity:',
-                    widget.product.stockQuantity?.toString() ?? 'N/A'),
-
-                // Display stock quantity and manage stock
-                if (widget.product.manageStock == true &&
-                    widget.product.stockQuantity != null)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: Text(
-                      '${widget.product.stockQuantity} items available',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.green,
-                      ),
-                    ),
-                  ),
-
                 // Add to Cart Button with Cart Package Integration
                 SizedBox(
                   width: double.infinity,
                   height: 50,
                   child: ElevatedButton.icon(
-                    onPressed: widget.product.manageStock == true &&
-                            (widget.product.stockQuantity == null ||
-                                _quantity > widget.product.stockQuantity!)
+                    onPressed: !_canAddToCart()
                         ? null
                         : () async {
                             final availableSizes = _getSizesFromProduct();
@@ -870,13 +975,15 @@ class _ProductDetailContentState extends ConsumerState<ProductDetailContent> {
                               );
                             }
                           },
-                    icon: const Icon(Icons.shopping_cart),
-                    label: const Text(
-                      'Add to Cart',
-                      style: TextStyle(fontSize: 18),
+                    icon: Icon(
+                        !_canAddToCart() ? Icons.block : Icons.shopping_cart),
+                    label: Text(
+                      !_canAddToCart() ? 'Out of Stock' : 'Add to Cart',
+                      style: const TextStyle(fontSize: 18),
                     ),
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 12),
+                      backgroundColor: !_canAddToCart() ? Colors.grey : null,
                     ),
                   ),
                 ),
