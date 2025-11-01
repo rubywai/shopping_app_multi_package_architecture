@@ -362,7 +362,7 @@ email=user@example.com&password=mypassword
 
 **Example Request:**
 ```
-GET /api.php?endpoint=products&page=1&per_page=20&_fields=id,name,slug,price,regular_price,sale_price,on_sale,stock_status,images,categories
+GET /api.php?endpoint=products&page=1&per_page=20&_fields=id,name,slug,price,regular_price,sale_price,on_sale,stock_status,manage_stock,stock_quantity,backorders,backorders_allowed,images,categories
 ```
 
 **Response:**
@@ -377,6 +377,10 @@ GET /api.php?endpoint=products&page=1&per_page=20&_fields=id,name,slug,price,reg
     "sale_price": "",
     "on_sale": false,
     "stock_status": "instock",
+    "manage_stock": true,
+    "stock_quantity": 100,
+    "backorders": "no",
+    "backorders_allowed": false,
     "images": [
       {
         "id": 218,
@@ -408,7 +412,7 @@ GET /api.php?endpoint=products&page=1&per_page=20&_fields=id,name,slug,price,reg
 
 **Example Request:**
 ```
-GET /api.php?endpoint=products/799&_fields=id,name,slug,price,regular_price,sale_price,on_sale,stock_status,description,short_description,images,categories,attributes,default_attributes,variations,average_rating,rating_count,reviews_allowed,sku,weight,dimensions,type,total_sales,tags,shipping_required,shipping_class
+GET /api.php?endpoint=products/799&_fields=id,name,slug,price,regular_price,sale_price,on_sale,stock_status,manage_stock,stock_quantity,backorders,backorders_allowed,description,short_description,images,categories,attributes,default_attributes,variations,average_rating,rating_count,reviews_allowed,sku,weight,dimensions,type,total_sales,tags,shipping_required,shipping_class
 ```
 
 **Response:**
@@ -422,6 +426,10 @@ GET /api.php?endpoint=products/799&_fields=id,name,slug,price,regular_price,sale
   "sale_price": "",
   "on_sale": false,
   "stock_status": "instock",
+  "manage_stock": true,
+  "stock_quantity": 100,
+  "backorders": "no",
+  "backorders_allowed": false,
   "description": "",
   "short_description": "<p>This comfortable cotton crop-top features the Divi Engine logo on the front expressing how easy &#8220;data Divi Engine life&#8221; is. It is the perfect tee for any occasion.</p>\n",
   "images": [
@@ -490,6 +498,22 @@ GET /api.php?endpoint=products/799&_fields=id,name,slug,price,regular_price,sale
   "shipping_class": ""
 }
 ```
+
+**Stock Management Fields:**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| stock_status | string | Stock availability status: `instock`, `outofstock`, `onbackorder` |
+| manage_stock | boolean | Whether stock is managed at product level |
+| stock_quantity | int/null | Available quantity if manage_stock is true, null otherwise |
+| backorders | string | Backorder status: `no`, `notify`, `yes` |
+| backorders_allowed | boolean | Whether backorders are permitted |
+
+**Stock Status Logic:**
+- When `manage_stock` is `true`: Stock is tracked, use `stock_quantity` to determine availability
+- When `manage_stock` is `false`: Stock is not tracked, rely on `stock_status` field
+- `stock_quantity` of `0` or less means out of stock (unless backorders are allowed)
+- Variable products inherit stock from their variations
 
 ---
 
