@@ -144,6 +144,7 @@ This project follows a **feature-based multi-package architecture** to achieve m
 - **Reusability:** Common utilities shared across features
 - **Separation of Concerns:** Clear boundaries between features
 - **Scalability:** Easy to add new features as packages
+- Planned: Deferred components (on-demand package loading) to load feature packages only when needed and reduce initial app size.
 
 ---
 
@@ -753,10 +754,10 @@ GET /api.php?endpoint=customers/5
   "shipping_total": "20",
   "payment_method": "cod",
   "payment_method_title": "Cash on Delivery",
-  "billing": { /* billing address */ },
-  "shipping": { /* shipping address */ },
-  "line_items": [ /* ordered items */ ],
-  "shipping_lines": [ /* shipping method */ ],
+  "billing": {},
+  "shipping": {},
+  "line_items": [],
+  "shipping_lines": [],
   "date_created": "2025-10-31T11:45:20",
   "payment_url": "https://shopapi.rubylearner.com/checkout/order-pay/860/..."
 }
@@ -804,4 +805,3 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## Contact
 
 For questions or support, please open an issue in the repository.
-
