@@ -10,6 +10,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  dio: ^5.9.0
+  get_it: ^8.3.0
+  flutter_riverpod: ^3.0.3
 
 dev_dependencies:
   flutter_test:

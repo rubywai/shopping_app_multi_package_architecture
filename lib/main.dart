@@ -1,4 +1,6 @@
+import 'package:common/common.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shopping_app_multi_package_based_architecture/routes/routes.dart';
 
 //auth
@@ -8,7 +10,13 @@ import 'package:shopping_app_multi_package_based_architecture/routes/routes.dart
 //profile
 //orders
 void main() async {
-  runApp(const MyApp());
+  WidgetsFlutterBinding.ensureInitialized();
+  await setUpDependencies();
+  runApp(
+    const ProviderScope(
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
