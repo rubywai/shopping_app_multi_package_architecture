@@ -384,7 +384,7 @@ class _ProductDetailContentState extends ConsumerState<ProductDetailContent> {
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: _getStockAvailabilityColor().withOpacity(0.1),
+                    color: _getStockAvailabilityColor().withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(4),
                     border: Border.all(
                       color: _getStockAvailabilityColor(),

@@ -2,6 +2,7 @@ import 'package:common/common.dart';
 import 'package:cart/cart.dart';
 import 'package:auth/auth.dart';
 import 'package:profile/profile.dart';
+import 'package:orders/orders.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'routes/routes.dart';
@@ -12,6 +13,7 @@ void main() async {
   await setUpCartDependency();
   await setUpAuthDependency();
   await setUpProfileDependency();
+  await setUpOrderDependency();
   runApp(
     const ProviderScope(
       child: MyApp(),

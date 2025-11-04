@@ -165,5 +165,11 @@ final routes = GoRouter(
         return EditCustomerInfoPage(customer: customer);
       },
     ),
+    // Orders route (outside bottom nav)
+    GoRoute(
+      path: '/orders',
+      name: 'orders',
+      builder: (context, state) => const OrderListPage(),
+    ),
   ],
 );

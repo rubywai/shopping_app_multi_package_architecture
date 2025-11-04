@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:get_it/get_it.dart';
 import '../data/models/create_order_request.dart';
 import '../data/services/order_service.dart';
 import 'order_state_model.dart';
@@ -8,7 +9,7 @@ class OrderStateNotifier extends Notifier<OrderState> {
 
   @override
   OrderState build() {
-    _orderService = OrderService();
+    _orderService = GetIt.instance.get<OrderService>();
     return OrderState();
   }
 
@@ -25,16 +26,6 @@ class OrderStateNotifier extends Notifier<OrderState> {
     } catch (e) {
       state = state.copyWith(isCreatingOrder: false, error: e.toString());
       return false;
-    }
-  }
-
-  Future<void> loadOrders(String customerId) async {
-    state = state.copyWith(isLoading: true, error: null);
-    try {
-      final orders = await _orderService.getOrders(customerId: customerId);
-      state = state.copyWith(isLoading: false, orders: orders);
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
     }
   }
 

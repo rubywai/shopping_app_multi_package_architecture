@@ -172,6 +172,32 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
       return;
     }
 
+    // Get the current logged-in user's ID
+    final authState = ref.read(authStateNotifierProvider);
+    final userIdString = authState.userData?.id;
+
+    if (userIdString == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please login to place an order'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    // Parse userId from String to int
+    final customerId = int.tryParse(userIdString);
+    if (customerId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Invalid user ID'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
     final cartState = ref.read(cartStateNotifierProvider);
     if (cartState.items.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -259,6 +285,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
           total: _selectedShippingMethod!.totalCost,
         ),
       ],
+      customerId: customerId, // Pass as integer directly
       customerNote: _orderNoteController.text.trim().isNotEmpty
           ? _orderNoteController.text.trim()
           : null,
@@ -287,6 +314,14 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
             orderState.successMessage ?? 'Order placed successfully!',
           ),
           backgroundColor: Colors.green,
+          duration: const Duration(seconds: 4),
+          action: SnackBarAction(
+            label: 'View Orders',
+            textColor: Colors.white,
+            onPressed: () {
+              router.go('/orders');
+            },
+          ),
         ),
       );
 

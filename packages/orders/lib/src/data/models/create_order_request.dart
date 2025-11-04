@@ -6,7 +6,7 @@ class CreateOrderRequest {
   final ShippingAddress? shipping;
   final List<OrderLineItem>? lineItems;
   final List<OrderShippingLine>? shippingLines;
-  final String? customerId;
+  final int? customerId; // Changed from String to int
   final String? customerNote;
 
   CreateOrderRequest({
@@ -36,7 +36,7 @@ class CreateOrderRequest {
     if (shippingLines != null) {
       data['shipping_lines'] = shippingLines!.map((v) => v.toJson()).toList();
     }
-    if (customerId != null) data['customer_id'] = customerId;
+    if (customerId != null) data['customer_id'] = customerId; // Send as integer
     if (customerNote != null) data['customer_note'] = customerNote;
     return data;
   }

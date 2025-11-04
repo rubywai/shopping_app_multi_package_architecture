@@ -87,11 +87,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(
-                Icons.person_outline,
-                size: 100,
-                color: Colors.grey,
-              ),
+              const Icon(Icons.person_outline, size: 100, color: Colors.grey),
               const SizedBox(height: 24),
               const Text(
                 'Please login to view your profile',
@@ -132,46 +128,46 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         child: profileState.isLoading && profileState.customer == null
             ? const Center(child: CircularProgressIndicator())
             : profileState.error != null && profileState.customer == null
-                ? Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(
-                          Icons.error_outline,
-                          size: 64,
-                          color: Colors.red,
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          'Error loading profile',
-                          style: Theme.of(context).textTheme.titleLarge,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          profileState.error!,
-                          style: const TextStyle(color: Colors.grey),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 16),
-                        ElevatedButton(
-                          onPressed: _loadProfile,
-                          child: const Text('Retry'),
-                        ),
-                      ],
+            ? Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.error_outline,
+                      size: 64,
+                      color: Colors.red,
                     ),
-                  )
-                : profileState.customer != null
-                    ? SingleChildScrollView(
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        child: Column(
-                          children: [
-                            _buildProfileHeader(profileState.customer!),
-                            const Divider(height: 1),
-                            _buildProfileDetails(profileState.customer!),
-                          ],
-                        ),
-                      )
-                    : const Center(child: Text('No profile data')),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Error loading profile',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      profileState.error!,
+                      style: const TextStyle(color: Colors.grey),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: _loadProfile,
+                      child: const Text('Retry'),
+                    ),
+                  ],
+                ),
+              )
+            : profileState.customer != null
+            ? SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: Column(
+                  children: [
+                    _buildProfileHeader(profileState.customer!),
+                    const Divider(height: 1),
+                    _buildProfileDetails(profileState.customer!),
+                  ],
+                ),
+              )
+            : const Center(child: Text('No profile data')),
       ),
     );
   }
@@ -189,18 +185,12 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           const SizedBox(height: 16),
           Text(
             customer.fullName,
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 4),
           Text(
             '@${customer.username}',
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.grey[600],
-            ),
+            style: TextStyle(fontSize: 16, color: Colors.grey[600]),
           ),
           const SizedBox(height: 8),
           Chip(
@@ -208,18 +198,37 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             backgroundColor: Colors.blue[100],
           ),
           const SizedBox(height: 16),
-          OutlinedButton.icon(
-            onPressed: () {
-              context.push('/profile/edit-info', extra: customer);
-            },
-            icon: const Icon(Icons.edit, size: 18),
-            label: const Text('Edit Profile'),
-            style: OutlinedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 24,
-                vertical: 12,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              OutlinedButton.icon(
+                onPressed: () {
+                  context.push('/profile/edit-info', extra: customer);
+                },
+                icon: const Icon(Icons.edit, size: 18),
+                label: const Text('Edit Profile'),
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 12,
+                  ),
+                ),
               ),
-            ),
+              const SizedBox(width: 12),
+              ElevatedButton.icon(
+                onPressed: () {
+                  context.push('/orders');
+                },
+                icon: const Icon(Icons.receipt_long, size: 18),
+                label: const Text('My Orders'),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 12,
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -229,11 +238,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   Widget _buildProfileDetails(customer) {
     return Column(
       children: [
-        _buildInfoTile(
-          Icons.email_outlined,
-          'Email',
-          customer.email,
-        ),
+        _buildInfoTile(Icons.email_outlined, 'Email', customer.email),
         _buildInfoTile(
           Icons.calendar_today_outlined,
           'Member Since',
@@ -254,8 +259,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 Text(
                   'Billing Address',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 TextButton.icon(
                   onPressed: () {
@@ -277,9 +282,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               alignment: Alignment.centerLeft,
               child: Text(
                 'Shipping Address',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
               ),
             ),
           ),
@@ -323,14 +328,16 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   Widget _buildAddressTile(dynamic address) {
     return ListTile(
       leading: const Icon(Icons.location_on_outlined, color: Colors.blue),
-      title: Text(address.fullAddress.isNotEmpty
-          ? address.fullAddress
-          : 'No address provided'),
+      title: Text(
+        address.fullAddress.isNotEmpty
+            ? address.fullAddress
+            : 'No address provided',
+      ),
       subtitle: address is BillingAddress && address.phone.isNotEmpty
           ? Text('Phone: ${address.phone}')
           : address.phone.isNotEmpty
-              ? Text('Phone: ${address.phone}')
-              : null,
+          ? Text('Phone: ${address.phone}')
+          : null,
     );
   }
 
@@ -349,7 +356,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         'Sep',
         'Oct',
         'Nov',
-        'Dec'
+        'Dec',
       ];
       return '${months[date.month - 1]} ${date.day}, ${date.year}';
     } catch (e) {

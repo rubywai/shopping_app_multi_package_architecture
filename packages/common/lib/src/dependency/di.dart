@@ -13,6 +13,7 @@ Future<void> setUpCommonDependency() async {
   productDio.options.receiveTimeout = const Duration(seconds: 30);
   productDio.interceptors.add(PrettyDioLogger(
     requestHeader: true,
+    requestBody: true,
   ));
   getIt.registerSingleton<Dio>(
     productDio,
@@ -24,7 +25,10 @@ Future<void> setUpCommonDependency() async {
   shippingDio.options.baseUrl = UrlConst.baseUrl;
   shippingDio.options.connectTimeout = const Duration(seconds: 30);
   shippingDio.options.receiveTimeout = const Duration(seconds: 30);
-  shippingDio.interceptors.add(PrettyDioLogger());
+  shippingDio.interceptors.add(PrettyDioLogger(
+    requestHeader: true,
+    requestBody: true,
+  ));
   getIt.registerSingleton<Dio>(
     shippingDio,
     instanceName: 'shipping',
