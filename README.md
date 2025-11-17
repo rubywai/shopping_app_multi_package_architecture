@@ -38,6 +38,9 @@ This is a modern Flutter shopping application that demonstrates clean architectu
 - ✅ Auto-login on app restart
 - ✅ User logout functionality
 - ✅ Auth state persistence
+- ✅ Guest browsing (browse products and add to cart without login)
+- ✅ Auth required only for checkout and profile features
+- ✅ Automatic redirect to login when accessing protected features
 
 ### Product Management
 - ✅ Product list with grid view
@@ -50,23 +53,26 @@ This is a modern Flutter shopping application that demonstrates clean architectu
 - ✅ Product attributes display
 
 ### Shopping Cart
-- ✅ Add to cart with quantity selection
+- ✅ Add to cart with quantity selection (works for both guest and logged-in users)
 - ✅ Cart item management (add, update, remove)
 - ✅ Local cart storage (SQLite)
 - ✅ Cart badge with item count
 - ✅ Cart total calculation
 - ✅ Persistent cart across sessions
-- ✅ Clear cart after order
+- ✅ Guest cart support with local persistence
+- ✅ Clear cart after successful order
 
 ### User Profile
-- ✅ View customer profile information
+- ✅ View customer profile information (requires login)
+- ✅ Automatic redirect to login for guest users
 - ✅ Edit customer information (name, phone, address)
 - ✅ Edit billing address
 - ✅ Customer data auto-load from WooCommerce
 - ✅ Profile auto-fill in checkout
 
 ### Checkout & Orders
-- ✅ Complete checkout flow
+- ✅ Complete checkout flow (requires login)
+- ✅ Automatic redirect to login for guest users at checkout
 - ✅ Billing address form with validation
 - ✅ Shipping address (same as billing or separate)
 - ✅ Shipping method selection with costs

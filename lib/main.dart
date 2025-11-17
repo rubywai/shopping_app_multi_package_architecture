@@ -9,7 +9,7 @@ import 'routes/routes.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await setUpCommonDependency();
+  await setUpCommonDependency(routes);
   await setUpCartDependency();
   await setUpAuthDependency();
   await setUpProfileDependency();

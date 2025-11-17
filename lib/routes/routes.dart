@@ -5,31 +5,9 @@ import 'package:cart/cart.dart';
 import 'package:auth/auth.dart';
 import 'package:profile/profile.dart';
 import 'package:orders/orders.dart';
-import 'package:get_it/get_it.dart';
 
 final routes = GoRouter(
-  initialLocation: '/login',
-  redirect: (context, state) async {
-    final authStorage = GetIt.instance.get<AuthStorageService>();
-    final isAuthenticated = await authStorage.isLoggedIn();
-
-    final isAuthRoute = state.matchedLocation == '/login' ||
-        state.matchedLocation == '/register' ||
-        state.matchedLocation == '/verify-otp' ||
-        state.matchedLocation == '/forgot-password';
-
-    // If user is authenticated and trying to access auth pages, redirect to products
-    if (isAuthenticated && isAuthRoute) {
-      return '/products';
-    }
-
-    // If user is not authenticated and trying to access protected pages, redirect to login
-    if (!isAuthenticated && !isAuthRoute) {
-      return '/login';
-    }
-
-    return null; // No redirect needed
-  },
+  initialLocation: '/products',
   routes: [
     // Auth routes (outside bottom nav)
     GoRoute(

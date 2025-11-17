@@ -54,10 +54,25 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
   @override
   void initState() {
     super.initState();
-    // Load customer data when checkout page opens
+    // Check authentication and load customer data when checkout page opens
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadCustomerData();
+      _checkAuthAndLoadData();
     });
+  }
+
+  Future<void> _checkAuthAndLoadData() async {
+    final authState = ref.read(authStateNotifierProvider);
+
+    // If user is not authenticated, redirect to login
+    if (!authState.isAuthenticated) {
+      if (mounted) {
+        context.pushReplacement('/login');
+      }
+      return;
+    }
+
+    // User is authenticated, load customer data
+    await _loadCustomerData();
   }
 
   Future<void> _loadCustomerData() async {

@@ -1,6 +1,7 @@
 import 'package:auth/auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../providers/order_list_state_notifier.dart';
 import '../../data/models/order_list_model.dart';
 
@@ -73,7 +74,45 @@ class _OrderListPageState extends ConsumerState<OrderListPage>
 
   @override
   Widget build(BuildContext context) {
+    final authState = ref.watch(authStateNotifierProvider);
     final orderState = ref.watch(orderListStateNotifierProvider);
+
+    // Check if user is authenticated
+    if (!authState.isAuthenticated) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('My Orders')),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(
+                Icons.receipt_long_outlined,
+                size: 100,
+                color: Colors.grey,
+              ),
+              const SizedBox(height: 24),
+              const Text(
+                'Please login to view your orders',
+                style: TextStyle(fontSize: 18, color: Colors.grey),
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: () {
+                  context.go('/login');
+                },
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 32,
+                    vertical: 16,
+                  ),
+                ),
+                child: const Text('Login'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(
