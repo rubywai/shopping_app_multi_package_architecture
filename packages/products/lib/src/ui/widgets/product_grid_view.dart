@@ -25,8 +25,8 @@ class ProductGridView extends StatelessWidget {
         SliverPadding(
           padding: const EdgeInsets.all(8),
           sliver: SliverGrid(
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
+            gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+              maxCrossAxisExtent: 200.0,
               crossAxisSpacing: 8,
               mainAxisSpacing: 8,
               childAspectRatio: 0.65,
@@ -42,9 +42,7 @@ class ProductGridView extends StatelessWidget {
           const SliverToBoxAdapter(
             child: Padding(
               padding: EdgeInsets.all(16.0),
-              child: Center(
-                child: CircularProgressIndicator(),
-              ),
+              child: Center(child: CircularProgressIndicator()),
             ),
           ),
         // No more items indicator
@@ -81,11 +79,10 @@ class ProductGridView extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Product Image - Fixed height
-            SizedBox(
-              height: 200,
-              width: double.infinity,
+            // Product Image - Flexible height
+            Expanded(
               child: Container(
+                width: double.infinity,
                 color: Colors.grey[200],
                 child: imageUrl != null
                     ? Image.network(
@@ -120,37 +117,34 @@ class ProductGridView extends StatelessWidget {
                       ),
               ),
             ),
-            // Product Details - Fixed height
-            SizedBox(
-              height: 80,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    // Product Name - Fixed 2 lines
-                    Text(
-                      product.name ?? 'No Name',
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        height: 1.2,
-                      ),
+            // Product Details - Wrap Content
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Product Name - Fixed 2 lines
+                  Text(
+                    product.name ?? 'No Name',
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      height: 1.2,
                     ),
-                    // Product Price
-                    Text(
-                      '${product.price ?? '0'} Ks',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).primaryColor,
-                      ),
+                  ),
+                  const SizedBox(height: 4),
+                  // Product Price
+                  Text(
+                    '${product.price ?? '0'} Ks',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).primaryColor,
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ],
