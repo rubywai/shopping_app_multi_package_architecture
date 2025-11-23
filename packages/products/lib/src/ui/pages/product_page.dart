@@ -4,6 +4,8 @@ import 'package:products/src/data/model/product_list_model.dart';
 import 'package:products/src/provider/product_list_notifier.dart';
 import 'package:products/src/provider/product_list_state_model.dart';
 
+import '../widgets/product_grid_view.dart';
+
 class ProductPage extends ConsumerStatefulWidget {
   const ProductPage({super.key});
 
@@ -29,16 +31,7 @@ class _ProductPageState extends ConsumerState<ProductPage> {
     return switch (sateModel) {
       ProductListLoadingState() => Center(child: CircularProgressIndicator()),
       ProductListSuccessState(products: List<ProductListModel> products) =>
-        ListView.builder(
-          itemCount: products.length,
-          itemBuilder: (context, index) {
-            ProductListModel product = products[index];
-            return ListTile(
-              title: Text(product.name ?? ''),
-              subtitle: Text(product.stockQuantity?.toString() ?? ''),
-            );
-          },
-        ),
+        ProductGridView(products: products),
       ProductListFailState() => Center(child: Text("Failed")),
     };
   }
