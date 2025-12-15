@@ -3,13 +3,23 @@ import 'package:flutter/material.dart';
 import '../../data/model/product_list_model.dart';
 
 class ProductGridView extends StatelessWidget {
-  const ProductGridView({super.key, required this.products});
+  const ProductGridView({
+    super.key,
+    required this.products,
+    required this.controller,
+    required this.hasMore,
+    required this.isLoadingMore,
+  });
 
   final List<ProductListModel> products;
+  final ScrollController controller;
+  final bool hasMore;
+  final bool isLoadingMore;
 
   @override
   Widget build(BuildContext context) {
     return CustomScrollView(
+      controller: controller,
       slivers: [
         SliverPadding(
           padding: EdgeInsets.all(8.0),
@@ -58,6 +68,20 @@ class ProductGridView extends StatelessWidget {
             ),
           ),
         ),
+        if (isLoadingMore)
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Center(child: CircularProgressIndicator()),
+            ),
+          ),
+        if (!hasMore && products.isNotEmpty)
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Center(child: Text("No More Product")),
+            ),
+          ),
       ],
     );
   }

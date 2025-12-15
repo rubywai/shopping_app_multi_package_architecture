@@ -6,7 +6,29 @@ class ProductListLoadingState extends ProductListSateModel {}
 
 class ProductListSuccessState extends ProductListSateModel {
   final List<ProductListModel> products;
-  ProductListSuccessState({required this.products});
+  final int currentPage;
+  final bool hasMore;
+  final bool isLoadingMore;
+  ProductListSuccessState({
+    required this.products,
+    required this.currentPage,
+    required this.hasMore,
+    required this.isLoadingMore,
+  });
+
+  ProductListSuccessState copyWith({
+    List<ProductListModel>? products,
+    int? currentPage,
+    bool? hasMore,
+    bool? isLoadingMore,
+  }) {
+    return ProductListSuccessState(
+      products: products ?? this.products,
+      currentPage: currentPage ?? this.currentPage,
+      hasMore: hasMore ?? this.hasMore,
+      isLoadingMore: isLoadingMore ?? this.isLoadingMore,
+    );
+  }
 }
 
 class ProductListFailState extends ProductListSateModel {
