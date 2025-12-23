@@ -1,8 +1,8 @@
+import 'package:common/common.dart';
 import 'package:flutter/material.dart';
 import 'package:cart/cart.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import '../../data/models/product_detail_model.dart';
 
 class ProductDetailContent extends ConsumerStatefulWidget {
@@ -234,28 +234,9 @@ class _ProductDetailContentState extends ConsumerState<ProductDetailContent> {
                     },
                     itemBuilder: (context, index) {
                       final image = widget.product.images![index];
-                      return Image.network(
-                        image.src ?? '',
+                      return MyImage(
+                        imageUrl: image.src ?? '',
                         fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) =>
-                            const Center(
-                          child: Icon(
-                            Icons.image_not_supported,
-                            size: 100,
-                            color: Colors.grey,
-                          ),
-                        ),
-                        loadingBuilder: (context, child, loadingProgress) {
-                          if (loadingProgress == null) return child;
-                          return Center(
-                            child: CircularProgressIndicator(
-                              value: loadingProgress.expectedTotalBytes != null
-                                  ? loadingProgress.cumulativeBytesLoaded /
-                                      loadingProgress.expectedTotalBytes!
-                                  : null,
-                            ),
-                          );
-                        },
                       );
                     },
                   ),
