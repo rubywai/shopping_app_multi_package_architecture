@@ -7,6 +7,13 @@ import 'package:products/products.dart';
 final GoRouter routes = GoRouter(
   initialLocation: '/',
   routes: [
+    GoRoute(
+      path: '/search',
+      name: 'search',
+      builder: (BuildContext context, GoRouterState state) {
+        return const ProductSearchPage();
+      },
+    ),
     StatefulShellRoute.indexedStack(
       builder: (context, state, shell) {
         return AppScaffoldPage(shell: shell);

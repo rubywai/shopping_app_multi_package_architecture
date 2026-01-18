@@ -7,17 +7,23 @@ class ProductService {
   Future<List<ProductListModel>> getProductList({
     int page = 1,
     int perPage = 10,
+    String? search,
   }) async {
+    final Map<String,dynamic> queryParams = {
+      'endpoint': 'products',
+      'page': page,
+      'per_page': perPage,
+      '_fields':
+      'id,name,slug,price,regular_price,sale_price,on_sale,stock_status,manage_stock,stock_quantity,backorders,backorders_allowed,images,categories',
+    };
+    if(search != null && search.trim().isNotEmpty){
+      queryParams['search'] = search;
+    }
     final res = await _dio.get(
       "",
-      queryParameters: {
-        'endpoint': 'products',
-        'page': page,
-        'per_page': perPage,
-        '_fields':
-            'id,name,slug,price,regular_price,sale_price,on_sale,stock_status,manage_stock,stock_quantity,backorders,backorders_allowed,images,categories',
-      },
+      queryParameters: queryParams,
     );
+
     return (res.data as List).map((e) {
       return ProductListModel.fromJson(e);
     }).toList();

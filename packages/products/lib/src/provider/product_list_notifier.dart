@@ -9,15 +9,18 @@ typedef ProductListProvider =
 
 class ProductListNotifier extends Notifier<ProductListSateModel> {
   final ProductService _productService = ProductService();
+
   @override
   ProductListSateModel build() {
     return ProductListLoadingState();
   }
 
-  void loadProduct({int page = 1, int perPage = 10}) async {
+  void loadProduct({int page = 1, int perPage = 10, String? search}) async {
     try {
       state = ProductListLoadingState();
-      List<ProductListModel> products = await _productService.getProductList();
+      List<ProductListModel> products = await _productService.getProductList(
+        search: search,
+      );
       state = ProductListSuccessState(
         products: products,
         currentPage: page,
@@ -29,7 +32,7 @@ class ProductListNotifier extends Notifier<ProductListSateModel> {
     }
   }
 
-  Future<void> loadMore() async {
+  Future<void> loadMore({String? search}) async {
     final currentState = state;
     if (currentState is! ProductListSuccessState) return;
     if (!currentState.hasMore || currentState.isLoadingMore) return;
@@ -39,7 +42,10 @@ class ProductListNotifier extends Notifier<ProductListSateModel> {
 
     try {
       final nextPage = currentState.currentPage + 1;
-      final newProducts = await _productService.getProductList(page: nextPage);
+      final newProducts = await _productService.getProductList(
+        page: nextPage,
+        search: search,
+      );
 
       // Append new products to existing list
       final allProducts = [...currentState.products, ...newProducts];

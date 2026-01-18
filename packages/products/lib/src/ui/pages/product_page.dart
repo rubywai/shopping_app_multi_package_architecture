@@ -5,6 +5,7 @@ import 'package:products/src/provider/product_list_notifier.dart';
 import 'package:products/src/provider/product_list_state_model.dart';
 
 import '../widgets/product_grid_view.dart';
+import 'package:go_router/go_router.dart';
 
 class ProductPage extends ConsumerStatefulWidget {
   const ProductPage({super.key});
@@ -41,20 +42,30 @@ class _ProductPageState extends ConsumerState<ProductPage> {
   @override
   Widget build(BuildContext context) {
     ProductListSateModel sateModel = ref.watch(_listProvider);
-    return switch (sateModel) {
-      ProductListLoadingState() => Center(child: CircularProgressIndicator()),
-      ProductListSuccessState(
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Ruby Learner Shopping"),
+        actions: [
+          IconButton(onPressed: (){
+            context.push("/search");
+          }, icon: const Icon(Icons.search),)
+        ],
+      ),
+      body: switch (sateModel) {
+        ProductListLoadingState() => const Center(child: CircularProgressIndicator()),
+        ProductListSuccessState(
         products: List<ProductListModel> products,
         isLoadingMore: bool isLoadingMore,
         hasMore: bool hasMore,
-      ) =>
-        ProductGridView(
-          products: products,
-          controller: _scrollController,
-          hasMore: hasMore,
-          isLoadingMore: isLoadingMore,
-        ),
-      ProductListFailState() => Center(child: Text("Failed")),
-    };
+        ) =>
+            ProductGridView(
+              products: products,
+              controller: _scrollController,
+              hasMore: hasMore,
+              isLoadingMore: isLoadingMore,
+            ),
+        ProductListFailState() => const Center(child: Text("Failed")),
+      },
+    );
   }
 }
