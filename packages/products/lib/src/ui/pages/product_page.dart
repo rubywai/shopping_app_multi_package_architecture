@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:products/src/data/model/product_list_model.dart';
-import 'package:products/src/provider/product_list_notifier.dart';
-import 'package:products/src/provider/product_list_state_model.dart';
+import 'package:products/src/provider/products/product_list_notifier.dart';
+import 'package:products/src/provider/products/product_list_state_model.dart';
 
 import '../widgets/product_grid_view.dart';
 import 'package:go_router/go_router.dart';

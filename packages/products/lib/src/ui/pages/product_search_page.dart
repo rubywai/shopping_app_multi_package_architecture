@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/model/product_list_model.dart';
-import '../../provider/product_list_notifier.dart';
-import '../../provider/product_list_state_model.dart';
+import '../../provider/products/product_list_notifier.dart';
+import '../../provider/products/product_list_state_model.dart';
 import '../widgets/product_grid_view.dart';
 
 class ProductSearchPage extends ConsumerStatefulWidget {
@@ -50,7 +50,7 @@ class _ProductSearchPageState extends ConsumerState<ProductSearchPage> {
           decoration: InputDecoration(
             labelText: "Search product",
             isDense: true,
-            border: OutlineInputBorder(),
+            border: const OutlineInputBorder(),
             suffixIcon: IconButton(
               onPressed: _searchController.text.isNotEmpty
                   ? () {
@@ -58,8 +58,8 @@ class _ProductSearchPageState extends ConsumerState<ProductSearchPage> {
                     }
                   : null,
               icon: _searchController.text.isEmpty
-                  ? Icon(Icons.search)
-                  : Icon(Icons.clear),
+                  ? const Icon(Icons.search)
+                  : const Icon(Icons.clear),
             ),
           ),
         ),
@@ -83,7 +83,7 @@ class _ProductSearchPageState extends ConsumerState<ProductSearchPage> {
               ),
             ProductListFailState() => const Center(child: Text("Failed")),
           }
-          : Center(
+          : const Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -108,7 +108,7 @@ class _ProductSearchPageState extends ConsumerState<ProductSearchPage> {
       if (_debouncer?.isActive == true) {
         _debouncer?.cancel();
       }
-      _debouncer = Timer(Duration(milliseconds: 500), () {
+      _debouncer = Timer(const Duration(milliseconds: 500), () {
         ref.read(_listProvider.notifier).loadProduct(search: keyword);
       });
     }

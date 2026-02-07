@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../data/model/product_list_model.dart';
-import '../data/service/product_service.dart';
+import '../../data/model/product_list_model.dart';
+import '../../data/service/product_service.dart';
 import 'product_list_state_model.dart';
 
 typedef ProductListProvider =
