@@ -280,17 +280,19 @@ https://shopapi.rubylearner.com/auth.php
 **Endpoint:** `POST /auth.php?action=register`
 
 **Request Body (Form Data):**
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| email | string | User email address |
-| password | string | User password |
+| Parameter    | Type   | Description           |
+|--------------|--------|-----------------------|
+| email        | string | User email address    |
+| password     | string | User password         |
+| display_name | string | User display name     |
+| user_login   | string | Desired username      |
 
 **Example Request:**
 ```
-POST /auth.php?action=register
-Content-Type: application/x-www-form-urlencoded
-
-email=user@example.com&password=mypassword
+curl -X POST \
+  https://shopapi.rubylearner.com/auth.php?action=register \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "email=user1@example.com&password=mypassword&display_name=User%20Name&user_login=user1"
 ```
 
 **Response:**
@@ -304,8 +306,8 @@ email=user@example.com&password=mypassword
     "message": "User was successfully created.",
     "user": {
       "ID": "5",
-      "user_login": "waiphyoaung123",
-      "user_email": "user@example.com",
+      "user_login": "user1",
+      "user_email": "user1@example.com",
       "display_name": "User Name"
     },
     "roles": ["subscriber"]
@@ -320,17 +322,17 @@ email=user@example.com&password=mypassword
 **Endpoint:** `POST /auth.php?action=login`
 
 **Request Body (Form Data):**
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| email | string | User email address |
-| password | string | User password |
+| Parameter | Type   | Description        |
+|-----------|--------|--------------------|
+| email     | string | User email address |
+| password  | string | User password      |
 
 **Example Request:**
 ```
-POST /auth.php?action=login
-Content-Type: application/x-www-form-urlencoded
-
-email=user@example.com&password=mypassword
+curl -X POST \
+  https://shopapi.rubylearner.com/auth.php?action=login \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "email=user1@example.com&password=mypassword"
 ```
 
 **Response:**
@@ -343,9 +345,9 @@ email=user@example.com&password=mypassword
       "jwt": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
       "iat": 1761884530,
       "exp": 1761888130,
-      "email": "user@example.com",
+      "email": "user1@example.com",
       "id": "5",
-      "username": "waiphyoaung123"
+      "username": "user1"
     }
   }
 }
@@ -353,7 +355,79 @@ email=user@example.com&password=mypassword
 
 ---
 
-### 3. Get Products
+### 3. Verify OTP
+
+**Endpoint:** `POST /auth.php?action=verify`
+
+**Request Body (Form Data):**
+| Parameter | Type   | Description        |
+|-----------|--------|--------------------|
+| email     | string | User email address |
+| otp       | string | OTP code received  |
+
+**Example Request:**
+```
+curl -X POST \
+  https://shopapi.rubylearner.com/auth.php?action=verify \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "email=user1@example.com&otp=123456"
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "OTP verified successfully!",
+  "data": {
+    "success": true,
+    "id": "5",
+    "message": "OTP verified.",
+    "user": {
+      "ID": "5",
+      "user_login": "user1",
+      "user_nicename": "user1",
+      "user_email": "user1@example.com",
+      "user_url": "",
+      "user_registered": "2026-02-20 12:00:00",
+      "user_activation_key": "",
+      "user_status": "0",
+      "display_name": "User Name"
+    },
+    "roles": ["subscriber"]
+  }
+}
+```
+
+---
+
+### 4. Reset Password
+
+**Endpoint:** `POST /auth.php?action=reset`
+
+**Request Body (Form Data):**
+| Parameter | Type   | Description        |
+|-----------|--------|--------------------|
+| email     | string | User email address |
+
+**Example Request:**
+```
+curl -X POST \
+  https://shopapi.rubylearner.com/auth.php?action=reset \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "email=user1@example.com"
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": "Password reset link sent to your email."
+}
+```
+
+---
+
+### 5. Get Products
 
 **Endpoint:** `GET /api.php?endpoint=products`
 
@@ -407,7 +481,7 @@ GET /api.php?endpoint=products&page=1&per_page=20&_fields=id,name,slug,price,reg
 
 ---
 
-### 4. Get Single Product
+### 6. Get Single Product
 
 **Endpoint:** `GET /api.php?endpoint=products/{id}`
 
@@ -523,7 +597,7 @@ GET /api.php?endpoint=products/799&_fields=id,name,slug,price,regular_price,sale
 
 ---
 
-### 5. Search Products
+### 7. Search Products
 
 **Endpoint:** `GET /api.php?endpoint=products&search={query}`
 
@@ -536,7 +610,7 @@ GET /api.php?endpoint=products&search=shirt&page=1&per_page=20
 
 ---
 
-### 6. Get Categories
+### 8. Get Categories
 
 **Endpoint:** `GET /api.php?endpoint=products/categories`
 
@@ -578,7 +652,7 @@ GET /api.php?endpoint=products/categories&page=1&per_page=100&parent=0&hide_empt
 
 ---
 
-### 7. Get Products by Category
+### 9. Get Products by Category
 
 **Endpoint:** `GET /api.php?endpoint=products&category={id}`
 
@@ -591,7 +665,7 @@ GET /api.php?endpoint=products&category=41&page=1&per_page=20
 
 ---
 
-### 8. Get Shipping Methods
+### 10. Get Shipping Methods
 
 **Endpoint:** `GET /api.php?endpoint=shipping/zones/{zoneId}/methods`
 
@@ -639,7 +713,7 @@ GET /api.php?endpoint=shipping/zones/1/methods
 
 ---
 
-### 9. Get Customer
+### 11. Get Customer
 
 **Endpoint:** `GET /api.php?endpoint=customers/{id}`
 
@@ -689,7 +763,7 @@ GET /api.php?endpoint=customers/5
 
 ---
 
-### 10. Update Customer
+### 12. Update Customer
 
 **Endpoint:** `PUT /api.php?endpoint=customers/{id}`
 
@@ -722,7 +796,7 @@ GET /api.php?endpoint=customers/5
 
 ---
 
-### 11. Create Order
+### 13. Create Order
 
 **Endpoint:** `POST /api.php?endpoint=orders`
 
