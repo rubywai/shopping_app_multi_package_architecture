@@ -80,6 +80,7 @@ This is a modern Flutter shopping application that demonstrates clean architectu
 - ✅ Order notes (optional)
 - ✅ Order summary with totals
 - ✅ Create order via WooCommerce API
+- ✅ View list of customer orders
 - ✅ Cart clearing after successful order
 
 ### Shipping
@@ -114,11 +115,11 @@ This is a modern Flutter shopping application that demonstrates clean architectu
 This project follows a **feature-based multi-package architecture** to achieve modularity, reusability, and separation of concerns.
 
 ```
-┌──────────────────────────────────────────────────────────────────┐
+┌─────────────────────────────────────────────────────────────────┐
 │                          Main App                                │
 │                     (Shopping App Root)                          │
 │              Routes | DI Setup | Bottom Navigation               │
-└───────────────────────────┬──────────────────────────────────────┘
+└───────────────────────────┬─────────────────────────────────────┘
                             │
         ┌───────────────────┼───────────────────┬─────────────┐
         │                   │                   │             │
@@ -141,7 +142,7 @@ This project follows a **feature-based multi-package architecture** to achieve m
    │   - Models (Data Models)                                       │
    │   - Services (API Calls - Dio)                                 │
    │   - DI (Dependency Injection - GetIt)                          │
-   └────────────────────────────────────────────────────────────────┘
+   └─────────────────────────────────────────────────────────────────┘
 ```
 
 ### Key Principles
@@ -218,7 +219,7 @@ Shopping cart with local SQLite persistence for add, update, remove, and checkou
 Customer profile management with view and edit capabilities for personal information and billing address.
 
 ### Orders Package
-Complete checkout flow with billing/shipping forms, payment selection, and order creation.
+Complete checkout flow with billing/shipping forms, payment selection, order creation, and customer order listing.
 
 ### Shipping Package
 Shipping zone and method selection with dynamic cost calculation for checkout integration.
@@ -869,6 +870,49 @@ GET /api.php?endpoint=customers/5
 
 ---
 
+### 14. Get Orders
+
+**Endpoint:** `GET /api.php?endpoint=orders`
+
+**Query Parameters:**
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| customer | string | Customer ID to fetch orders for |
+| status | string | Optional order status filter (e.g. `processing`, `completed`, `pending`) |
+| _fields | string | Comma-separated field list |
+
+**Example Request:**
+```
+GET /api.php?endpoint=orders&customer=5&_fields=id,status,total,date_created,line_items
+```
+
+**Example Request with Status Filter:**
+```
+GET /api.php?endpoint=orders&customer=5&status=processing&_fields=id,status,total,date_created,line_items
+```
+
+**Response:**
+```json
+[
+  {
+    "id": 860,
+    "status": "processing",
+    "total": "365",
+    "date_created": "2025-10-31T11:45:20",
+    "line_items": [
+      {
+        "product_id": 799,
+        "quantity": 2,
+        "variation_id": 800
+      }
+    ]
+  }
+]
+```
+
+This order list endpoint is used by the app's Orders package to show a customer order history page.
+
+---
 
 ## Dependencies
 
